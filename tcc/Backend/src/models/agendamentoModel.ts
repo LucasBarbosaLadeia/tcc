@@ -29,7 +29,7 @@ id_unidade: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: "Unidade",
+        model: "Unidades",
         key: "id_unidade"
     }
 },
@@ -37,7 +37,7 @@ id_especialidade: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: "Especialidade",
+        model: "Especialidades",
         key: "id_especialidade"
     }
 },
@@ -45,7 +45,7 @@ id_data: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: "Data",
+        model: "Datas",
         key: "id_data"
     }
 },
@@ -53,13 +53,14 @@ id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: "Usuario",
+        model: "Usuarios",
         key: "id_usuario"
     }
 },
     }, {
     sequelize,
-    modelName: "Agendamento"
+    modelName: "Agendamento",
+    tableName: "Agendamentos"
 });
 
 export default Agendamento;

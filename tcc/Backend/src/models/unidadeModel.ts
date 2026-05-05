@@ -26,7 +26,7 @@ id_endereco: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-        model: "Endereco",
+        model: "Enderecos",
         key: "id_endereco"
     }
 },
@@ -37,5 +37,8 @@ nome: {
 }
     }, {
     sequelize,
-    modelName: "Unidade"
+    modelName: "Unidade",
+    tableName: "Unidades"
 });
+
+export default Unidade;
