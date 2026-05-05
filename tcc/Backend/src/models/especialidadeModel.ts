@@ -26,7 +26,7 @@ Especialidade.init(
     },
     {
         sequelize,
-        tableName: "especialidades"
+        tableName: "Especialidades"
     }
 )
 

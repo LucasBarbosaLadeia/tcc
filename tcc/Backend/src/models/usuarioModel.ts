@@ -30,7 +30,7 @@ id_usuario: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: "Endereco",
+            model: "Enderecos",
             key: "id_endereco"
         }
     },
@@ -40,7 +40,7 @@ id_usuario: {
         field: "nome"
     },
     cpf: {
-        type: DataTypes.STRING(14),
+        type: DataTypes.STRING(11),
         allowNull: false,
         unique: true,
         field: "cpf"
@@ -52,7 +52,8 @@ id_usuario: {
     }
 }, {
     sequelize,
-    modelName: "Usuario"
+    modelName: "Usuario",
+    tableName: "Usuarios",
 });
 
 export default Usuario;

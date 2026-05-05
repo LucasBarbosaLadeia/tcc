@@ -26,7 +26,8 @@ id_data: {
     }
 }, {
     sequelize,
-    modelName: "Data"
+    modelName: "Data",
+    tableName: "Datas"
 });
 
 export default Data;
