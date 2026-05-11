@@ -1,63 +1,97 @@
-# Backend - Rotas da API
+# Projeto TCC - Sistema de Agendamento de Consultas Médicas
 
-Base path: `/api`
+## Descrição do Projeto
 
-Endpoints por recurso (métodos HTTP, caminho, corpo de requisição):
+Este projeto é um sistema de agendamento de consultas médicas desenvolvido como Trabalho de Conclusão de Curso (TCC). Permite que usuários agendem consultas em unidades de saúde específicas, escolhendo especialidades médicas e datas disponíveis.
 
-- **Endereços**
-  - GET `/api/enderecos` — listar todos
-  - GET `/api/enderecos/:id` — obter por id
-  - POST `/api/enderecos` — criar
-    - body exemplo: `{ "logradouro": "Rua A", "numero": "123", "bairro": "Centro", "cidade": "Cidade", "uf": "SP" }`
-  - PUT `/api/enderecos/:id` — atualizar
-  - DELETE `/api/enderecos/:id` — deletar
+### Funcionalidade Principal
 
-- **Usuários**
-  - GET `/api/usuarios` — listar todos
-  - GET `/api/usuarios/:id` — obter por id
-  - POST `/api/usuarios` — criar
-    - body exemplo: `{ "nome": "Fulano", "cpf": "00000000000", "senha": "senha123", "id_endereco": 1 }`
-  - PUT `/api/usuarios/:id` — atualizar
-  - DELETE `/api/usuarios/:id` — deletar
+A funcionalidade principal é o agendamento de consultas. Usuários podem:
+- Visualizar unidades de saúde disponíveis
+- Selecionar especialidades médicas
+- Ver datas e horários disponíveis
+- Agendar uma consulta
 
-- **Agendamentos**
-  - GET `/api/agendamentos` — listar todos
-  - GET `/api/agendamentos/:id` — obter por id
-  - POST `/api/agendamentos` — criar
-    - body exemplo: `{ "id_unidade": 1, "id_especialidade": 2, "id_data": 3, "id_usuario": 4 }`
-  - PUT `/api/agendamentos/:id` — atualizar
-  - DELETE `/api/agendamentos/:id` — deletar
+*Regra de Negócio Principal:*
+- Um usuário pode agendar apenas uma consulta por especialidade em uma unidade específica.
+- Datas e horários devem estar disponíveis (não conflitantes).
+- O sistema valida a disponibilidade antes de confirmar o agendamento.
+- Datas e horários não podem 
 
-- **Datas (horários)**
-  - GET `/api/datas` — listar todos
-  - GET `/api/datas/:id` — obter por id
-  - POST `/api/datas` — criar
-    - body exemplo: `{ "horario": "2026-05-03T14:30:00.000Z" }`
-  - PUT `/api/datas/:id` — atualizar
-  - DELETE `/api/datas/:id` — deletar
+## Stack de Desenvolvimento
 
-- **Especialidades**
-  - GET `/api/especialidades` — listar todos
-  - GET `/api/especialidades/:id` — obter por id
-  - POST `/api/especialidades` — criar
-    - body exemplo: `{ "nome": "Cardiologia" }`
-  - PUT `/api/especialidades/:id` — atualizar
-  - DELETE `/api/especialidades/:id` — deletar
+- *Backend:* Node.js com TypeScript
+- *Framework Web:* Express.js
+- *Banco de Dados:* MySQL
+- *ORM:* Sequelize
+- *Containerização:* Docker e Docker Compose
+- *Servidor Web:* Nginx (para proxy reverso)
+- *Outros:* CORS para requisições cross-origin, dotenv para variáveis de ambiente
 
-- **Unidades**
-  - GET `/api/unidades` — listar todos
-  - GET `/api/unidades/:id` — obter por id
-  - POST `/api/unidades` — criar
-    - body exemplo: `{ "id_endereco": 1, "nome": "Unidade Central" }`
-  - PUT `/api/unidades/:id` — atualizar
-  - DELETE `/api/unidades/:id` — deletar
+### Ferramentas Utilizadas
 
-Observações
-- Os exemplos de body estão em JSON; ajuste campos conforme validações dos controllers.
-- As rotas usam prefixos conforme registrado em `src/index.ts`.
-- Autenticação/Autorização não foi adicionada — se necessário, podemos incluir middleware.
+- *Node.js:* Plataforma de execução JavaScript no servidor.
+- *TypeScript:* Superset de JavaScript que adiciona tipagem estática, melhorando a manutenção e prevenindo erros.
+- *Express.js:* Framework minimalista para construção de APIs RESTful.
+- *Sequelize:* ORM para interação com o banco de dados MySQL, facilitando operações CRUD.
+- *MySQL:* Sistema de gerenciamento de banco de dados relacional.
+- *Docker:* Para containerização da aplicação, garantindo consistência entre ambientes.
+- *Nginx:* Servidor web usado como proxy reverso para rotear requisições.
+- *ts-node-dev:* Ferramenta para desenvolvimento com hot-reload em TypeScript.
 
-Como testar localmente
+## Arquitetura Utilizada
 
-1. Subir containers / rodar o backend (ex.: `docker compose up -d --build` ou `npm run dev` no diretório Backend)
-2. Usar Postman / curl para testar os endpoints acima usando `http://localhost:3001` (ou a porta configurada)
+A arquitetura adotada é Monolitica
+
+### Motivo da Escolha da Arquitetura
+
+como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato mnolitico para o melhor desempenho
+
+## Fluxo da Funcionalidade Principal
+
+
+
+1. O usuário inicia acessando a aplicação.
+2. clica em nova consulta
+3. vê as especialidades disponiveis.
+4. escolhe uma especialidade.
+5. Navega pelas unidades de saúde disponíveis.
+6. Seleciona uma unidade e visualiza os horários disponíveis.
+7. Escolhe uma data e hora.
+8. Confirma o agendamento.
+9. O sistema valida se o horário ainda está disponível.
+10. Se disponível, salva no banco de dados e confirma; caso contrário, exibe erro.
+
+## Como Executar o Projeto
+
+1. Certifique-se de ter Docker e Docker Compose instalados.
+2. Clone o repositório.
+3. Configure as variáveis de ambiente no arquivo .env.
+4. Execute docker-compose up na raiz do projeto.
+
+## Estrutura do Projeto
+
+
+/
+├── Backend/
+│   ├── src/
+│   │   ├── Config/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   └── routes/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── tsconfig.json
+├── Nginx/
+│   ├── Dockerfile
+│   └── nginx.conf
+├── Docker-compose.yml
+└── README.md
+
+
+## Próximos Passos
+
+- Implementar autenticação de usuários
+- Adicionar mais rotas para todas as entidades
+- Desenvolver frontend
+- Adicionar testes automatizados
