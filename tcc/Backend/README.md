@@ -41,49 +41,22 @@ A funcionalidade principal é o agendamento de consultas. Usuários podem:
 
 ## Arquitetura Utilizada
 
-A arquitetura adotada é Monolitica adaptada para APIs RESTful
+A arquitetura adotada é Monolitica
 
-### Estrutura das Camadas
-
-- *Models:* Representam as entidades do banco de dados (Agendamento, Usuario, Unidade, etc.). Usam Sequelize para mapeamento objeto-relacional.
-- *Controllers:* Contêm a lógica de negócio. Processam requisições, validam dados e interagem com os models.
-- *Routes:* Definem os endpoints da API e roteiam as requisições para os controllers apropriados.
 
 ### Motivo da Escolha da Arquitetura
 
-A arquitetura MVC foi escolhida porque:
-- *Separação de Preocupações:* Cada camada tem responsabilidades bem definidas, facilitando manutenção e testes.
-- *Escalabilidade:* Permite adicionar novas funcionalidades sem afetar outras partes do código.
-- *Reutilização:* Controllers e models podem ser reutilizados em diferentes rotas.
-- *Manutenibilidade:* Mudanças em uma camada não impactam diretamente as outras.
-- *Adequada para APIs:* Embora originalmente para aplicações web, se adapta bem a APIs REST, onde "View" é substituída pela resposta JSON.
+como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato mnolitico para o melhor desempenho
 
 ## Fluxo da Funcionalidade Principal
-
-O diagrama abaixo ilustra o fluxo de agendamento de uma consulta:
-
-mermaid
-flowchart TD
-    A[Usuário acessa aplicação] --> B[Visualizar unidades disponíveis]
-    B --> C[Selecionar unidade]
-    C --> D[Visualizar especialidades da unidade]
-    D --> E[Selecionar especialidade]
-    E --> F[Visualizar datas/horários disponíveis]
-    F --> G[Selecionar data/hora]
-    G --> H[Confirmar agendamento]
-    H --> I{Validar disponibilidade}
-    I -->|Disponível| J[Salvar agendamento no DB]
-    I -->|Indisponível| K[Exibir erro]
-    J --> L[Retornar confirmação]
-    K --> M[Voltar para seleção]
-
 
 ### Explicação do Fluxo
 
 1. O usuário inicia acessando a aplicação.
-2. Navega pelas unidades de saúde disponíveis.
-3. Escolhe uma unidade e vê as especialidades oferecidas.
-4. Seleciona uma especialidade e visualiza os horários disponíveis.
+2. o usuário clica em novo agendamento
+3. Seleciona uma especialidade 
+2. escolhe uma unidades de saúde disponíveis.
+4. visualiza os horários disponíveis.
 5. Escolhe uma data e hora.
 6. Confirma o agendamento.
 7. O sistema valida se o horário ainda está disponível.
