@@ -46,7 +46,7 @@ A arquitetura adotada é Monolitica
 
 ### Motivo da Escolha da Arquitetura
 
-como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato mnolitico para o melhor desempenho
+como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato monolitico para o melhor desempenho
 
 ## Fluxo da Funcionalidade Principal
 
