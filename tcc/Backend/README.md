@@ -43,24 +43,24 @@ A funcionalidade principal é o agendamento de consultas. Usuários podem:
 
 A arquitetura adotada é Monolitica
 
+
 ### Motivo da Escolha da Arquitetura
 
-como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato mnolitico para o melhor desempenho
+como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato monolitico para o melhor desempenho
 
 ## Fluxo da Funcionalidade Principal
 
-
+### Explicação do Fluxo
 
 1. O usuário inicia acessando a aplicação.
-2. clica em nova consulta
-3. vê as especialidades disponiveis.
-4. escolhe uma especialidade.
-5. Navega pelas unidades de saúde disponíveis.
-6. Seleciona uma unidade e visualiza os horários disponíveis.
-7. Escolhe uma data e hora.
-8. Confirma o agendamento.
-9. O sistema valida se o horário ainda está disponível.
-10. Se disponível, salva no banco de dados e confirma; caso contrário, exibe erro.
+2. o usuário clica em novo agendamento
+3. Seleciona uma especialidade 
+2. escolhe uma unidades de saúde disponíveis.
+4. visualiza os horários disponíveis.
+5. Escolhe uma data e hora.
+6. Confirma o agendamento.
+7. O sistema valida se o horário ainda está disponível.
+8. Se disponível, salva no banco de dados e confirma; caso contrário, exibe erro.
 
 ## Como Executar o Projeto
 
