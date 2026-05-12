@@ -19,7 +19,7 @@ id_endereco: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
-    field: "id_endereço",
+    field: "id_endereco",
 },
 estado: {
     type: DataTypes.STRING(100),
@@ -33,11 +33,12 @@ cidade: {
 }
 },
 {
-    sequelize,
-    tableName: "saude_na_mao",
-    timestamps: true,
-    underscored: true,
-  }
+        sequelize,
+        modelName: "Endereco",
+        tableName: "Enderecos",
+        timestamps: true,
+        underscored: true,
+    }
 )
 
 export default Endereco;
