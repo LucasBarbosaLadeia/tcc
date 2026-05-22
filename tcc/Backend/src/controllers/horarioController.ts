@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Horario from "../models/horarioModel";
+import { Op } from "sequelize";
 
 export const createHorario = async (req: Request, res: Response) => {
   try {
@@ -23,7 +24,13 @@ export const createHorario = async (req: Request, res: Response) => {
 
 export const getAllHorarios = async (_req: Request, res: Response) => {
   try {
-    const items = await Horario.findAll();
+    // apenas mostra os horários que estão disponíveis e no futuro (filtro tipo vw_disponibilidade)
+    const items = await Horario.findAll({
+      where: {
+        status: "Disponível",
+        data_hora_inicio: { [Op.gt]: new Date() }
+      }
+    });
     return res.status(200).json(items);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar horários", details: error });

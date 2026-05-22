@@ -21,7 +21,8 @@ export const createProfissional = async (req: Request, res: Response) => {
 
 export const getAllProfissionais = async (_req: Request, res: Response) => {
   try {
-    const items = await Profissional.findAll();
+    // profissionais ativos devem aparecer nas buscas (RN06)
+    const items = await Profissional.findAll({ where: { ativo: true } });
     return res.status(200).json(items);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar profissionais", details: error });

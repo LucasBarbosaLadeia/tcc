@@ -15,6 +15,7 @@ export interface IPaciente {
     bairro: string;
     cidade: string;
     estado: string;
+    contador_faltas?: number;
     created_at?: Date;
     updated_at?: Date;
 }
@@ -33,6 +34,7 @@ public numero!: string;
 public bairro!: string;
 public cidade!: string;
 public estado!: string;
+public contador_faltas!: number;
 public created_at!: Date;
 public updated_at!: Date;
 }
@@ -110,6 +112,13 @@ estado: {
     type: DataTypes.STRING(2),
     allowNull: false,
     field: "estado"
+},
+
+contador_faltas: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    field: "contador_faltas"
 },
 created_at: {
     type: DataTypes.DATE,
