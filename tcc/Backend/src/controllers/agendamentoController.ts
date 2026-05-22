@@ -1,22 +1,25 @@
 import { Request, Response } from "express";
 import Agendamento from "../models/agendamentoModel";
 
+const generateCodigo = () => `AG-${Date.now().toString(36).toUpperCase()}`;
+
 export const createAgendamento = async (req: Request, res: Response) => {
   try {
-    const { id_unidade, id_especialidade, id_data, id_usuario } = req.body;
+    const { codigo_agendamento, id_paciente, id_horario, status, observacoes } = req.body;
 
-    if (!id_unidade || !id_especialidade || !id_data || !id_usuario) {
+    if (!id_paciente || !id_horario) {
       return res.status(400).json({ error: "Dados obrigatórios não informados" });
     }
 
-    const novo = await Agendamento.create({ id_unidade, id_especialidade, id_data, id_usuario });
+    const codigo = codigo_agendamento || generateCodigo();
+    const novo = await Agendamento.create({ codigo_agendamento: codigo, id_paciente, id_horario, status: status || "Agendado", observacoes });
     return res.status(201).json(novo);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao criar agendamento", details: error });
   }
 };
 
-export const getAllAgendamentos = async (req: Request, res: Response) => {
+export const getAllAgendamentos = async (_req: Request, res: Response) => {
   try {
     const items = await Agendamento.findAll();
     return res.status(200).json(items);
@@ -42,14 +45,17 @@ export const getAgendamentoById = async (req: Request, res: Response) => {
 export const updateAgendamento = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
-    const { id_unidade, id_especialidade, id_data, id_usuario } = req.body;
-
+    const { status, observacoes, motivo_cancelamento } = req.body;
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
     const item = await Agendamento.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agendamento não encontrado" });
 
-    await item.update({ id_unidade, id_especialidade, id_data, id_usuario });
+    if (status === "Cancelado" && !motivo_cancelamento) {
+      return res.status(400).json({ error: "Motivo do cancelamento é obrigatório" });
+    }
+
+    await item.update({ status, observacoes, motivo_cancelamento });
     return res.status(200).json(item);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao atualizar agendamento", details: error });
