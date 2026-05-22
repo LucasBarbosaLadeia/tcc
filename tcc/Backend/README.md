@@ -12,7 +12,7 @@ A funcionalidade principal é o agendamento de consultas. Usuários podem:
 - Ver datas e horários disponíveis
 - Agendar uma consulta
 
-*Regra de Negócio Principal:*
+Regra de Negócio Principal:
 - Um usuário pode agendar apenas uma consulta por especialidade em uma unidade específica.
 - Datas e horários devem estar disponíveis (não conflitantes).
 - O sistema valida a disponibilidade antes de confirmar o agendamento.
@@ -20,24 +20,24 @@ A funcionalidade principal é o agendamento de consultas. Usuários podem:
 
 ## Stack de Desenvolvimento
 
-- *Backend:* Node.js com TypeScript
-- *Framework Web:* Express.js
-- *Banco de Dados:* MySQL
-- *ORM:* Sequelize
-- *Containerização:* Docker e Docker Compose
-- *Servidor Web:* Nginx (para proxy reverso)
-- *Outros:* CORS para requisições cross-origin, dotenv para variáveis de ambiente
+- Backend: Node.js com TypeScript
+- Framework Web: Express.js
+- Banco de Dados: MySQL
+- ORM: Sequelize
+- Containerização: Docker e Docker Compose
+- Servidor Web: Nginx (para proxy reverso)
+- Outros: CORS para requisições cross-origin, dotenv para variáveis de ambiente
 
 ### Ferramentas Utilizadas
 
-- *Node.js:* Plataforma de execução JavaScript no servidor.
-- *TypeScript:* Superset de JavaScript que adiciona tipagem estática, melhorando a manutenção e prevenindo erros.
-- *Express.js:* Framework minimalista para construção de APIs RESTful.
-- *Sequelize:* ORM para interação com o banco de dados MySQL, facilitando operações CRUD.
-- *MySQL:* Sistema de gerenciamento de banco de dados relacional.
-- *Docker:* Para containerização da aplicação, garantindo consistência entre ambientes.
-- *Nginx:* Servidor web usado como proxy reverso para rotear requisições.
-- *ts-node-dev:* Ferramenta para desenvolvimento com hot-reload em TypeScript.
+- Node.js: Plataforma de execução JavaScript no servidor.
+- TypeScript: Superset de JavaScript que adiciona tipagem estática, melhorando a manutenção e prevenindo erros.
+- Express.js: Framework minimalista para construção de APIs RESTful.
+- Sequelize: ORM para interação com o banco de dados MySQL, facilitando operações CRUD.
+- MySQL: Sistema de gerenciamento de banco de dados relacional.
+- Docker: Para containerização da aplicação, garantindo consistência entre ambientes.
+- Nginx: Servidor web usado como proxy reverso para rotear requisições.
+- ts-node-dev: Ferramenta para desenvolvimento com hot-reload em TypeScript.
 
 ## Arquitetura Utilizada
 
@@ -46,7 +46,7 @@ A arquitetura adotada é Monolitica
 
 ### Motivo da Escolha da Arquitetura
 
-como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato monolitico para o melhor desempenho
+como é planejado implementar o projeto em apenas um municipio inicial foi decidido o formato mnolitico para o melhor desempenho
 
 ## Fluxo da Funcionalidade Principal
 
