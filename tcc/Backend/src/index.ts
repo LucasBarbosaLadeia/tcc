@@ -1,43 +1,7 @@
-import express from "express";
-import cors from "cors";
 import sequelize from "./Config/database";
-import path from "path";
+import app from "./app";
 
-// Importar models e suas relações
-import "./models/profissionalModel";
-import "./models/usuarioModel";
-import "./models/agendamentoModel";
-import "./models/horarioModel";
-import "./models/especialidadeModel";
-import "./models/unidadeModel";
-
-// Importar rotas
-import usuarioRoutes from "./routes/usuarioRoutes";
-import agendamentoRoutes from "./routes/agendamentoRoutes";
-import dataRoutes from "./routes/horarioRoutes";
-import especialidadeRoutes from "./routes/especialidadeRoutes";
-import unidadeRoutes from "./routes/unidadeRoutes";
-import pacienteRoutes from "./routes/pacienteRoutes";
-import agendaRoutes from "./routes/agendaRoutes";
-import profissionalRoutes from "./routes/profissionalRoutes";
-
-const app = express();
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Usar rotas da API (cada recurso em seu prefixo)
-app.use("/api/usuarios", usuarioRoutes);
-app.use("/api/agendamentos", agendamentoRoutes);
-app.use("/api/datas", dataRoutes);
-app.use("/api/especialidades", especialidadeRoutes);
-app.use("/api/unidades", unidadeRoutes);
-app.use("/api/pacientes", pacienteRoutes);
-app.use("/api/agendas", agendaRoutes);
-app.use("/api/profissionais", profissionalRoutes);
 
 // Testar conexão com banco de dados com retry/backoff
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
