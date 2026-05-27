@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import sequelize from "./Config/database";
-import path from "path";
+import app from "./app";
 
 // Importar models e suas relações
 import "./models/profissionalModel";
@@ -114,6 +114,8 @@ app.use("/api/unidades", unidadeRoutes);
 app.use("/api/pacientes", pacienteRoutes);
 app.use("/api/agendas", agendaRoutes);
 app.use("/api/profissionais", profissionalRoutes);
+
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
 
 // Testar conexão com banco de dados com retry/backoff
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
