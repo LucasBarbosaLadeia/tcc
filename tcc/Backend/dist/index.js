@@ -23,6 +23,7 @@ const unidadeRoutes_1 = __importDefault(require("./routes/unidadeRoutes"));
 const pacienteRoutes_1 = __importDefault(require("./routes/pacienteRoutes"));
 const agendaRoutes_1 = __importDefault(require("./routes/agendaRoutes"));
 const profissionalRoutes_1 = __importDefault(require("./routes/profissionalRoutes"));
+const swaggerServerUrl = process.env.SWAGGER_SERVER_URL || "/";
 const swaggerSpec = {
     openapi: "3.0.0",
     info: {
@@ -32,8 +33,8 @@ const swaggerSpec = {
     },
     servers: [
         {
-            url: "http://localhost:3001",
-            description: "Servidor local do backend",
+            url: swaggerServerUrl,
+            description: "Servidor base da API",
         },
     ],
     paths: {
@@ -119,7 +120,10 @@ const testDatabase = async (retries = 10, delayMs = 3000) => {
             console.log("Banco de dados conectado com sucesso!");
             // Limpar constraints com nomes duplicados que podem causar ER_FK_DUP_NAME
             try {
-                const dbName = (database_1.default.getDatabaseName && database_1.default.getDatabaseName()) || (database_1.default.config && database_1.default.config.database) || process.env.DB_NAME || "saude_na_mao";
+                const dbName = (database_1.default.getDatabaseName && database_1.default.getDatabaseName()) ||
+                    (database_1.default.config && database_1.default.config.database) ||
+                    process.env.DB_NAME ||
+                    "saude_na_mao";
                 const [fks] = await database_1.default.query(`SELECT CONSTRAINT_NAME, TABLE_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = :db AND CONSTRAINT_NAME!='PRIMARY' AND REFERENCED_TABLE_NAME IS NOT NULL`, { replacements: { db: dbName } });
                 if (fks && fks.length) {
                     for (const r of fks) {

@@ -1,10 +1,12 @@
 # Sugestões e Pendências — Projeto TCC
 
 Resumo rápido
+
 - Projeto: backend em Node/TypeScript (Express + Sequelize), MySQL, Nginx como proxy e Docker Compose.
 - Objetivo deste arquivo: listar inconsistências, riscos e melhorias práticas para facilitar execução, deploy e manutenção.
 
 Como subir (local)
+
 1. Com Docker Compose (recomendado):
 
 ```bash
@@ -13,12 +15,14 @@ docker compose -f "Docker-compose.yml" up --build
 ```
 
 Endereços úteis após subir:
+
 - Swagger (UI): http://localhost/api-docs
 - API root: http://localhost/api
 - Health: http://localhost/health
 - Backend direto (sem Docker): http://localhost:3001
 
 Principais achados e inconsistências
+
 1. Nginx: foi identificado redirecionamento para HTTPS e proxy para porta errada em versões anteriores — já corrigido, confirme que a pasta `Nginx` (N maiúsculo) existe no Compose.
 2. Backend Dockerfile: expunha `3000` mas o app usa `3001`. Ajuste aplicado, confirme `EXPOSE` e `CMD` corretos.
 3. Variáveis sensíveis: `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD` e outras estão em cleartext no `docker-compose`. Melhor criar um `.env` (não comitado) e usar `env_file` ou secrets.
@@ -29,6 +33,7 @@ Principais achados e inconsistências
 8. Segurança MySQL: porta 3306 exposta para o host. Se não necessário, remova a publicação de porta em produção.
 
 Melhorias recomendadas (priorizadas)
+
 1. Criar `.env.example` com todas as variáveis usadas (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `PORT`, etc.).
 2. Mover spec do Swagger para `src/swagger.ts` e documentar modelos (schemas) das entidades.
 3. Fazer um multi-stage Dockerfile:
@@ -56,6 +61,7 @@ CMD ["node", "dist/index.js"]
 7. Criar `README.md` principal (este arquivo é complementar) com instruções de desenvolvimento, testes e deploy.
 
 Checklist rápido antes de rodar (local)
+
 - Docker Desktop ativo
 - Porta 80 e 8080 livres (ou alterar publicados no compose)
 - Executar:
@@ -66,6 +72,7 @@ docker compose up --build
 ```
 
 Notas finais
+
 - Evite usar `@nestjs/*` neste projeto (não é NestJS).
 - Verificação executada: não há dependências ou uso de NestJS no código. Procurei por `@nestjs` e removi pacotes residuais caso existissem.
 - Se quiser, eu posso: gerar `swagger.ts` com schemas das rotas; criar `Dockerfile` multi-stage; ou adicionar `.env.example` e scripts npm. Diga qual você prefere que eu faça em seguida.

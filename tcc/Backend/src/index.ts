@@ -22,6 +22,8 @@ import pacienteRoutes from "./routes/pacienteRoutes";
 import agendaRoutes from "./routes/agendaRoutes";
 import profissionalRoutes from "./routes/profissionalRoutes";
 
+const swaggerServerUrl = process.env.SWAGGER_SERVER_URL || "/";
+
 const swaggerSpec = {
   openapi: "3.0.0",
   info: {
@@ -31,8 +33,8 @@ const swaggerSpec = {
   },
   servers: [
     {
-      url: "http://localhost:3001",
-      description: "Servidor local do backend",
+      url: swaggerServerUrl,
+      description: "Servidor base da API",
     },
   ],
   paths: {
