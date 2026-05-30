@@ -21,6 +21,7 @@ import unidadeRoutes from "./routes/unidadeRoutes";
 import pacienteRoutes from "./routes/pacienteRoutes";
 import agendaRoutes from "./routes/agendaRoutes";
 import profissionalRoutes from "./routes/profissionalRoutes";
+import authRoutes from "./routes/authRoutes";
 
 const swaggerServerUrl = process.env.SWAGGER_SERVER_URL || "/";
 
@@ -88,10 +89,18 @@ const swaggerSpec = {
         },
       },
     },
+    "/api/login": {
+      post: {
+        summary: "Realiza login",
+        tags: ["Autenticação"],
+        responses: {
+          200: { description: "Login realizado com sucesso" },
+        },
+      },
+    },
   },
 };
 
-const app = express();
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
 
 // Middleware
@@ -114,8 +123,7 @@ app.use("/api/unidades", unidadeRoutes);
 app.use("/api/pacientes", pacienteRoutes);
 app.use("/api/agendas", agendaRoutes);
 app.use("/api/profissionais", profissionalRoutes);
-
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
+app.use("/api/login", authRoutes); // rota de login
 
 // Testar conexão com banco de dados com retry/backoff
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));

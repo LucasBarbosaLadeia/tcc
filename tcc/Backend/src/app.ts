@@ -9,6 +9,7 @@ import unidadeRoutes from "./routes/unidadeRoutes";
 import pacienteRoutes from "./routes/pacienteRoutes";
 import agendaRoutes from "./routes/agendaRoutes";
 import profissionalRoutes from "./routes/profissionalRoutes";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 
@@ -37,9 +38,13 @@ app.use("/api/unidades", unidadeRoutes);
 app.use("/api/pacientes", pacienteRoutes);
 app.use("/api/agendas", agendaRoutes);
 app.use("/api/profissionais", profissionalRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ message: "api funcional", api: "Acesse /api para ver os endpoints disponíveis" });
+  res.json({
+    message: "api funcional",
+    api: "Acesse /api para ver os endpoints disponíveis",
+  });
 });
 
 export default app;
