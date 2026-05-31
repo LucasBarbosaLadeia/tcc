@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
 
 import usuarioRoutes from "./routes/usuarioRoutes";
 import agendamentoRoutes from "./routes/agendamentoRoutes";
@@ -10,12 +11,15 @@ import pacienteRoutes from "./routes/pacienteRoutes";
 import agendaRoutes from "./routes/agendaRoutes";
 import profissionalRoutes from "./routes/profissionalRoutes";
 import authRoutes from "./routes/authRoutes";
+import swaggerSpec from "./config/swagger";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Small test helper: allow tests to set req.user via header `x-user` containing JSON
 app.use((req, _res, next) => {
@@ -44,6 +48,31 @@ app.get("/", (req, res) => {
   res.json({
     message: "api funcional",
     api: "Acesse /api para ver os endpoints disponíveis",
+  });
+});
+
+app.get("/api", (_req, res) => {
+  res.json({
+    endpoints: [
+      "/api/enderecos",
+      "/api/usuarios",
+      "/api/agendamentos",
+      "/api/datas",
+      "/api/especialidades",
+      "/api/unidades",
+      "/api/pacientes",
+      "/api/agendas",
+      "/api/profissionais",
+      "/api/auth/login",
+    ],
+  });
+});
+
+app.get("/health", (_req, res) => {
+  res.json({
+    status: "OK",
+    database: "Connected",
+    timestamp: new Date().toISOString(),
   });
 });
 
