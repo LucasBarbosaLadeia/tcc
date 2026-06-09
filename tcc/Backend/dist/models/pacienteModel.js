@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const database_1 = __importDefault(require("../Config/database"));
+const database_1 = __importDefault(require("../config/database"));
 class Paciente extends sequelize_1.Model {
 }
 Paciente.init({
@@ -12,7 +12,7 @@ Paciente.init({
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-        field: "id_paciente"
+        field: "id_paciente",
     },
     id_usuario: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -21,83 +21,83 @@ Paciente.init({
         field: "id_usuario",
         references: {
             model: "Usuarios",
-            key: "id_usuario"
-        }
+            key: "id_usuario",
+        },
     },
     cpf: {
         type: sequelize_1.DataTypes.STRING(14),
         allowNull: false,
         unique: true,
-        field: "cpf"
+        field: "cpf",
     },
     nome_completo: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
-        field: "nome_completo"
+        field: "nome_completo",
     },
     data_nascimento: {
         type: sequelize_1.DataTypes.DATEONLY,
         allowNull: false,
-        field: "data_nascimento"
+        field: "data_nascimento",
     },
     sexo: {
         type: sequelize_1.DataTypes.ENUM("M", "F", "Outro"),
         allowNull: false,
-        field: "sexo"
+        field: "sexo",
     },
     telefone: {
         type: sequelize_1.DataTypes.STRING(20),
         allowNull: false,
-        field: "telefone"
+        field: "telefone",
     },
     cep: {
         type: sequelize_1.DataTypes.STRING(8),
         allowNull: false,
-        field: "cep"
+        field: "cep",
     },
     logradouro: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
-        field: "logradouro"
+        field: "logradouro",
     },
     numero: {
         type: sequelize_1.DataTypes.STRING(10),
         allowNull: false,
-        field: "numero"
+        field: "numero",
     },
     bairro: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
-        field: "bairro"
+        field: "bairro",
     },
     cidade: {
         type: sequelize_1.DataTypes.STRING(100),
         allowNull: false,
-        field: "cidade"
+        field: "cidade",
     },
     estado: {
         type: sequelize_1.DataTypes.STRING(2),
         allowNull: false,
-        field: "estado"
+        field: "estado",
     },
     contador_faltas: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
-        field: "contador_faltas"
+        field: "contador_faltas",
     },
     created_at: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
         defaultValue: sequelize_1.DataTypes.NOW,
-        field: "created_at"
+        field: "created_at",
     },
     updated_at: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
         defaultValue: sequelize_1.DataTypes.NOW,
-        field: "updated_at"
-    }
+        field: "updated_at",
+    },
 }, {
     sequelize: database_1.default,
     modelName: "Paciente",

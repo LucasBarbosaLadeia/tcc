@@ -1,11 +1,12 @@
 import { Model } from "sequelize";
+export type PerfilUsuario = "PACIENTE" | "RECEPCIONISTA" | "ADMIN";
 export interface IUsuario {
     id_usuario?: number;
     nome: string;
     email: string;
     cpf: string;
     senha: string;
-    perfil: "paciente" | "recepcionista" | "admin";
+    perfil: PerfilUsuario;
     ativo: boolean;
     token_reset?: string | null;
     token_expiracao?: Date | null;
@@ -18,7 +19,7 @@ declare class Usuario extends Model<IUsuario> implements IUsuario {
     email: string;
     cpf: string;
     senha: string;
-    perfil: "paciente" | "recepcionista" | "admin";
+    perfil: PerfilUsuario;
     ativo: boolean;
     token_reset: string | null;
     token_expiracao: Date | null;
