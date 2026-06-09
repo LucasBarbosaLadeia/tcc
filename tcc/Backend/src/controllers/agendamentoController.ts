@@ -12,16 +12,21 @@ const generateCodigo = () => {
 export const createAgendamento = async (req: Request, res: Response) => {
   try {
     const { codigo_agendamento, id_paciente, id_horario, status, observacoes } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Token nao informado" });
+    }
+
+    if (user.perfil === "PACIENTE") {
+      if (!user.id_paciente || Number(id_paciente) !== Number(user.id_paciente)) {
+        return res.status(403).json({ error: "Paciente so pode criar agendamento para si mesmo" });
+      }
+    }
 
     // origem: preenchido automaticamente quando recepcionista cria no balcão
     let origem = req.body.origem;
-    const user = (req as any).user;
-    if (user && user.role === "recepcionista") origem = "balcao";
-
-    // se usuario logado for paciente, só pode agendar para si mesmo
-    if (user && user.role === "paciente" && user.id_paciente && id_paciente !== user.id_paciente) {
-      return res.status(403).json({ error: "Paciente só pode agendar para si mesmo" });
-    }
+    if (user.perfil === "RECEPCIONISTA") origem = "balcao";
 
     if (!id_paciente || !id_horario) {
       return res.status(400).json({ error: "Dados obrigatórios não informados" });
@@ -63,6 +68,13 @@ export const createAgendamento = async (req: Request, res: Response) => {
 
 export const getAllAgendamentos = async (_req: Request, res: Response) => {
   try {
+    const user = _req.user;
+
+    if (user?.perfil === "PACIENTE" && user.id_paciente) {
+      const items = await Agendamento.findAll({ where: { id_paciente: user.id_paciente } });
+      return res.status(200).json(items);
+    }
+
     const items = await Agendamento.findAll();
     return res.status(200).json(items);
   } catch (error) {
@@ -75,8 +87,14 @@ export const getAgendamentoById = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
+    const user = req.user;
+
     const item = await Agendamento.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agendamento não encontrado" });
+
+    if (user?.perfil === "PACIENTE" && user.id_paciente !== Number(item.get("id_paciente"))) {
+      return res.status(403).json({ error: "Acesso nao autorizado" });
+    }
 
     return res.status(200).json(item);
   } catch (error) {
@@ -90,8 +108,18 @@ export const updateAgendamento = async (req: Request, res: Response) => {
     const { status, observacoes, motivo_cancelamento } = req.body;
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
+    const user = req.user;
+
     const item = await Agendamento.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agendamento não encontrado" });
+
+    if (user?.perfil === "PACIENTE" && user.id_paciente !== Number(item.get("id_paciente"))) {
+      return res.status(403).json({ error: "Acesso nao autorizado" });
+    }
+
+    if (user?.perfil === "PACIENTE" && status && status !== "Cancelado") {
+      return res.status(403).json({ error: "Paciente so pode cancelar o proprio agendamento" });
+    }
 
     if (status === "Cancelado" && !motivo_cancelamento) {
       return res.status(400).json({ error: "Motivo do cancelamento é obrigatório" });
@@ -137,8 +165,18 @@ export const deleteAgendamento = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
+    const user = req.user;
+
     const item = await Agendamento.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agendamento não encontrado" });
+
+    if (user?.perfil === "PACIENTE" && user.id_paciente !== Number(item.get("id_paciente"))) {
+      return res.status(403).json({ error: "Acesso nao autorizado" });
+    }
+
+    if (user?.perfil === "PACIENTE") {
+      return res.status(403).json({ error: "Paciente deve cancelar o proprio agendamento" });
+    }
 
     await item.destroy();
     return res.status(200).json({ message: "Agendamento deletado com sucesso" });

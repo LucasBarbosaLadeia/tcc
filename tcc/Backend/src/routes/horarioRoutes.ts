@@ -6,8 +6,13 @@ import {
   updateHorario,
   deleteHorario,
 } from "../controllers/horarioController";
+import { authMiddleware } from "../middlewares/auth";
+import { authorize } from "../middlewares/authorize";
 
 const router = Router();
+
+router.use(authMiddleware);
+router.use(authorize("ADMIN"));
 
 /**
  * @swagger

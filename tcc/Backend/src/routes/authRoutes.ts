@@ -7,7 +7,8 @@ const router = Router();
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Realiza login
+ *     summary: Realiza login publico
+ *     description: Endpoint publico que retorna JWT para usuarios autenticados.
  *     tags:
  *       - Autenticacao
  *     requestBody:

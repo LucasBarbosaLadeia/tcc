@@ -6,8 +6,13 @@ import {
   updateProfissional,
   deleteProfissional,
 } from "../controllers/profissionalController";
+import { authMiddleware } from "../middlewares/auth";
+import { authorize } from "../middlewares/authorize";
 
 const router = Router();
+
+router.use(authMiddleware);
+router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -121,5 +126,3 @@ router.put("/:id", updateProfissional);
 router.delete("/:id", deleteProfissional);
 
 export default router;
-
-

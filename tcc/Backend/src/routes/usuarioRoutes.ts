@@ -6,14 +6,21 @@ import {
   updateUsuario,
   deleteUsuario,
 } from "../controllers/usuarioController";
+import { authMiddleware } from "../middlewares/auth";
+import { authorize } from "../middlewares/authorize";
 
 const router = Router();
+
+router.use(authMiddleware);
+
+router.post("/", authorize("ADMIN"), createUsuario);
 
 /**
  * @swagger
  * /api/usuarios:
  *   post:
  *     summary: Cria um usuario
+ *     description: Somente ADMIN autenticado pode criar usuarios.
  *     tags:
  *       - Usuarios
  *     security:
@@ -28,13 +35,14 @@ const router = Router();
  *       201:
  *         description: Usuario criado
  */
-router.post("/", createUsuario);
+router.use(authorize("ADMIN"));
 
 /**
  * @swagger
  * /api/usuarios:
  *   get:
  *     summary: Lista todos os usuarios
+ *     description: Requer perfil ADMIN.
  *     tags:
  *       - Usuarios
  *     security:
@@ -50,6 +58,7 @@ router.get("/", getAllUsuarios);
  * /api/usuarios/{id}:
  *   get:
  *     summary: Busca usuario por id
+ *     description: Requer perfil ADMIN.
  *     tags:
  *       - Usuarios
  *     security:
@@ -73,6 +82,7 @@ router.get("/:id", getUsuarioById);
  * /api/usuarios/{id}:
  *   put:
  *     summary: Atualiza usuario
+ *     description: Requer perfil ADMIN.
  *     tags:
  *       - Usuarios
  *     security:
@@ -102,6 +112,7 @@ router.put("/:id", updateUsuario);
  * /api/usuarios/{id}:
  *   delete:
  *     summary: Remove usuario
+ *     description: Requer perfil ADMIN.
  *     tags:
  *       - Usuarios
  *     security:

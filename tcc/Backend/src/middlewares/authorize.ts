@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
-type RequestWithUser = Request & { user?: { perfil?: string } };
+type RequestWithUser = Request & {
+  user?: { perfil?: "PACIENTE" | "RECEPCIONISTA" | "ADMIN" };
+};
 
 type Perfil = "PACIENTE" | "RECEPCIONISTA" | "ADMIN";
 

@@ -5,8 +5,9 @@ import { hashPassword } from "../utils/password";
 export const createUsuario = async (req: Request, res: Response) => {
   try {
     const { nome, email, cpf, senha, perfil } = req.body;
+    const requester = (req as Request & { user?: { perfil?: string } }).user;
 
-    if (!nome || !email || !cpf || !senha || !perfil) {
+    if (!nome || !email || !cpf || !senha) {
       return res
         .status(400)
         .json({ error: "Dados obrigatórios não informados" });
@@ -18,12 +19,17 @@ export const createUsuario = async (req: Request, res: Response) => {
     const senhaHash = await hashPassword(senha);
     console.log("Senha original:", senha);
     console.log("Senha hash:", senhaHash);
+    const perfilFinal =
+      requester?.perfil === "ADMIN" && perfil
+        ? (perfil as PerfilUsuario)
+        : "PACIENTE";
+
     const novo = await Usuario.create({
       nome,
       email,
       cpf,
       senha: senhaHash,
-      perfil,
+      perfil: perfilFinal,
       ativo: true,
     });
     const { senha: _senha, ...usuarioSemSenha } = novo.toJSON();
