@@ -1,3 +1,5 @@
+
+import { logger } from "./Config/logger";
 import sequelize from "./Config/database";
 import app from "./app";
 
@@ -12,7 +14,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
     try {
       attempt++;
       await sequelize.authenticate();
-      console.log("Banco de dados conectado com sucesso!");
+      logger.info("Banco de dados conectado com sucesso!");
 
       // Limpar constraints com nomes duplicados que podem causar ER_FK_DUP_NAME
       try {
@@ -27,29 +29,29 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
             const constraintName = r.CONSTRAINT_NAME || r.constraint_name;
             const table = r.TABLE_NAME || r.table_name || r.table;
             if (!constraintName || !table) continue;
-            console.log(`Removendo foreign key ${constraintName} de tabela ${table}`);
+            logger.info(`Removendo foreign key ${constraintName} de tabela ${table}`);
             try {
               await sequelize.query(`ALTER TABLE \`${table}\` DROP FOREIGN KEY \`${constraintName}\``);
             } catch (dropErr) {
-              console.warn(`Falha ao remover FK ${constraintName} de ${table}:`, (dropErr as Error).message || dropErr);
+              logger.warn(`Falha ao remover FK ${constraintName} de ${table}:`, (dropErr as Error).message || dropErr);
             }
           }
         }
       } catch (cleanupErr) {
-        console.warn("Erro ao limpar foreign keys existentes:", (cleanupErr as Error).message || cleanupErr);
+        logger.warn("Erro ao limpar foreign keys existentes:", (cleanupErr as Error).message || cleanupErr);
       }
 
       // Sincronizar modelos
       await sequelize.sync(); // cuidado com alter: true em produção, pode causar perda de dados
-      console.log("Banco de dados sincronizado!");
+      logger.info("Banco de dados sincronizado!");
       return;
     } catch (error) {
-      console.warn(`Tentativa ${attempt} de ${retries} falhou:`, (error as Error).message || error);
+      logger.warn(`Tentativa ${attempt} de ${retries} falhou:`, (error as Error).message || error);
       if (attempt >= retries) {
-        console.error("Não foi possível conectar ao banco após várias tentativas:", error);
+        logger.error("Não foi possível conectar ao banco após várias tentativas:", error);
         process.exit(1);
       }
-      console.log(`Aguardando ${delayMs}ms antes da próxima tentativa...`);
+      logger.info(`Aguardando ${delayMs}ms antes da próxima tentativa...`);
       // exponential backoff-ish
       await wait(delayMs * attempt);
     }
@@ -64,11 +66,12 @@ const startServer = async (): Promise<void> => {
 
     // Iniciar servidor
     app.listen(port, () => {
-      console.log(`Servidor rodando na porta ${port}`);
-      console.log(`saude na mão- Backend`);
+      logger.info(`Servidor rodando na porta ${port}`);
+    
+      logger.info(`saude na mão- Backend`);
     });
   } catch (error) {
-    console.error("Erro ao iniciar servidor:", error);
+    logger.error("Erro ao iniciar servidor:", error);
     process.exit(1);
   }
 };
