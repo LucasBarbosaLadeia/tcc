@@ -1,7 +1,7 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { getDefaultRouteByPerfil } from '@/constants/routes';
-import { useAuthStore } from '@/stores/authStore';
-import type { Perfil } from '@/constants/perfis';
+import { Navigate, Outlet } from "react-router-dom";
+import { getDefaultRouteByPerfil } from "@/constants/routes";
+import { useAuthStore } from "@/stores/authStore";
+import type { Perfil } from "@/constants/perfis";
 
 interface RoleGuardProps {
   allowedRoles: ReadonlyArray<Perfil>;
