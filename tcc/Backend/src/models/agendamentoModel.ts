@@ -1,5 +1,5 @@
 import {Model, DataTypes} from "sequelize";
-import sequelize from "../Config/database";
+import sequelize from "../config/database";
 
 export interface IAgendamento {
     id_agendamento?: number;

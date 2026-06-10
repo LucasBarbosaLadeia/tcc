@@ -1,5 +1,22 @@
 services:
   # =========================
+  # Frontend React / Vite
+  # =========================
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    networks:
+      - app-net
+
+  # =========================
   # Banco de Dados MySQL
   # =========================
   database:
@@ -48,7 +65,7 @@ services:
       dockerfile: Dockerfile
     container_name: nginx-container
     ports:
-      - "80:80"
+      - "8081:80"
     depends_on:
       - backend
     networks:
