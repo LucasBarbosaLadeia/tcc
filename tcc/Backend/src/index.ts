@@ -197,38 +197,4 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-// Rota de teste (mantida para compatibilidade)
-app.get("/", (req, res) => {
-  res.json({
-    message: "api funcional",
-    api: "Acesse /api para ver os endpoints disponíveis",
-  });
-});
-
-// Rota raiz da API que lista endpoints disponíveis
-app.get("/api", (req, res) => {
-  res.json({
-    endpoints: [
-      "/api/enderecos",
-      "/api/usuarios",
-      "/api/agendamentos",
-      "/api/datas",
-      "/api/especialidades",
-      "/api/unidades",
-      "/api/pacientes",
-      "/api/agendas",
-      "/api/profissionais",
-    ],
-  });
-});
-
-// Rota de health check (mantida para compatibilidade)
-app.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    database: "Connected",
-    timestamp: new Date().toISOString(),
-  });
-});
-
 startServer();
