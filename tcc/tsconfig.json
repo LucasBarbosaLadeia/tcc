@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "esModuleInterop": true,
+    "strict": false,
+    "types": ["jest", "node"]
+  },
+  "include": [  
+    "Backend/src/**/*",
+    "Backend/src/types/**/*",
+    "tests/**/*"
+]
+  
+}

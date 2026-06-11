@@ -10,6 +10,7 @@ import "./models/pacienteModel";
 import "./models/agendaModel";
 import "./models/horarioModel";
 import "./models/agendamentoModel";
+import { logger } from "./config/logger";
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
@@ -22,7 +23,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
     try {
       attempt++;
       await sequelize.authenticate();
-      console.log("Banco de dados conectado com sucesso!");
+      logger.info("Banco de dados conectado com sucesso!");
 
       // Limpar constraints com nomes duplicados que podem causar ER_FK_DUP_NAME
       try {
@@ -41,7 +42,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
             const constraintName = r.CONSTRAINT_NAME || r.constraint_name;
             const table = r.TABLE_NAME || r.table_name || r.table;
             if (!constraintName || !table) continue;
-            console.log(
+            logger.info(
               `Removendo foreign key ${constraintName} de tabela ${table}`,
             );
             try {
@@ -49,7 +50,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
                 `ALTER TABLE \`${table}\` DROP FOREIGN KEY \`${constraintName}\``,
               );
             } catch (dropErr) {
-              console.warn(
+              logger.warn(
                 `Falha ao remover FK ${constraintName} de ${table}:`,
                 (dropErr as Error).message || dropErr,
               );
@@ -57,7 +58,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
           }
         }
       } catch (cleanupErr) {
-        console.warn(
+        logger.warn(
           "Erro ao limpar foreign keys existentes:",
           (cleanupErr as Error).message || cleanupErr,
         );
@@ -65,21 +66,21 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
 
       // Sincronizar modelos
       await sequelize.sync(); // cuidado com alter: true em produção, pode causar perda de dados
-      console.log("Banco de dados sincronizado!");
+      logger.info("Banco de dados sincronizado!");
       return;
     } catch (error) {
-      console.warn(
+      logger.warn(
         `Tentativa ${attempt} de ${retries} falhou:`,
         (error as Error).message || error,
       );
       if (attempt >= retries) {
-        console.error(
+        logger.error(
           "Não foi possível conectar ao banco após várias tentativas:",
-          error,
+          (error as Error).message || error,
         );
         process.exit(1);
       }
-      console.log(`Aguardando ${delayMs}ms antes da próxima tentativa...`);
+      logger.info(`Aguardando ${delayMs}ms antes da próxima tentativa...`);
       // exponential backoff-ish
       await wait(delayMs * attempt);
     }
@@ -94,11 +95,11 @@ const startServer = async (): Promise<void> => {
 
     // Iniciar servidor
     app.listen(port, () => {
-      console.log(`Servidor rodando na porta ${port}`);
-      console.log(`saude na mão- Backend`);
+      logger.info(`Servidor rodando na porta ${port}`);
+      logger.info(`saude na mão- Backend`);
     });
   } catch (error) {
-    console.error("Erro ao iniciar servidor:", error);
+    logger.error("Erro ao iniciar servidor:", (error as Error).message || error);
     process.exit(1);
   }
 };
