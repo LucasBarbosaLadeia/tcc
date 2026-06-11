@@ -31,6 +31,8 @@ services:
       - DB_USER=app
       - DB_PASSWORD=1234
       - DB_NAME=saude_na_mao
+      - JWT_SECRET=uma_chave_super_forte
+      - JWT_EXPIRES_IN=1d
       - NODE_ENV=production
     depends_on:
       - database

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const database_1 = __importDefault(require("../Config/database"));
+const database_1 = __importDefault(require("../config/database"));
 class Profissional extends sequelize_1.Model {
 }
 Profissional.init({
@@ -40,8 +40,8 @@ Profissional.init({
         field: "id_especialidade",
         references: {
             model: "Especialidades",
-            key: "id_especialidade"
-        }
+            key: "id_especialidade",
+        },
     },
     id_unidade: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -49,8 +49,8 @@ Profissional.init({
         field: "id_unidade",
         references: {
             model: "Unidades",
-            key: "id_unidade"
-        }
+            key: "id_unidade",
+        },
     },
     telefone: {
         type: sequelize_1.DataTypes.STRING(20),
