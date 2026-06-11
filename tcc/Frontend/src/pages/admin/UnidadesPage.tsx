@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Building2, Plus, Search, X } from 'lucide-react';
+import { Building2, Plus, Search, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useUnidades, useCreateUnidade } from '@/hooks/useUnidades';
+import { useUnidades, useCreateUnidade, useDeleteUnidade } from '@/hooks/useUnidades';
 
 const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400';
 
@@ -20,12 +20,14 @@ export function UnidadesPage() {
   const [search, setSearch] = useState('');
   const [tipoFilter, setTipoFilter] = useState('Todos');
   const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState({
     nome: '', tipo: 'UBS', telefone: '', logradouro: '', numero: '', bairro: '',
   });
 
   const { data: unidades, isLoading, error } = useUnidades();
   const createMutation = useCreateUnidade();
+  const deleteMutation = useDeleteUnidade();
 
   const filtered = (unidades ?? []).filter((u) => {
     const matchTipo = tipoFilter === 'Todos' || u.tipo === tipoFilter;
@@ -104,6 +106,7 @@ export function UnidadesPage() {
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Telefone</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Bairro</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                <th className="px-5 py-3.5" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -132,12 +135,53 @@ export function UnidadesPage() {
                       {u.ativo !== false ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <button
+                      onClick={() => setDeleteId(u.id_unidade)}
+                      className="text-gray-300 hover:text-red-500 transition-colors"
+                      title="Excluir unidade"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {deleteId !== null && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-base font-bold text-gray-900 mb-1">Excluir Unidade</h3>
+            <p className="text-sm text-gray-500 mb-5">Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="flex-1 py-2.5 border border-gray-200 text-sm font-semibold text-gray-600 rounded-xl hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await deleteMutation.mutateAsync(deleteId);
+                    toast.success('Unidade excluída.');
+                    setDeleteId(null);
+                  } catch {
+                    toast.error('Erro ao excluir unidade.');
+                  }
+                }}
+                disabled={deleteMutation.isPending}
+                className="flex-1 py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 disabled:opacity-60"
+              >
+                {deleteMutation.isPending ? 'Excluindo…' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">

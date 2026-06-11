@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Calendar, CalendarCheck, Clock, UserPlus, Users } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { StatCard } from '@/components/ui/StatCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useAgendamentos } from '@/hooks/useAgendamentos';
+import { useAgendamentos, useConfirmarPresenca } from '@/hooks/useAgendamentos';
 import { useAllPacientes } from '@/hooks/usePaciente';
 import { useHorarios } from '@/hooks/useHorarios';
 
@@ -13,6 +14,7 @@ export function DashboardPage() {
   const { data: agendamentos } = useAgendamentos();
   const { data: pacientes } = useAllPacientes();
   const { data: horarios } = useHorarios();
+  const confirmarMutation = useConfirmarPresenca();
 
   const hoje = new Date().toDateString();
   const agendamentosHoje = (agendamentos ?? []).filter(
@@ -84,6 +86,7 @@ export function DashboardPage() {
                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Código</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Horário</th>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -101,6 +104,24 @@ export function DashboardPage() {
                       a.status === 'Cancelado'  ? 'bg-red-50 text-red-700'   :
                       'bg-green-50 text-green-700'
                     }`}>{a.status}</span>
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    {a.status === 'Agendado' && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await confirmarMutation.mutateAsync(a.id_agendamento);
+                            toast.success('Presença confirmada!');
+                          } catch {
+                            toast.error('Erro ao confirmar presença.');
+                          }
+                        }}
+                        disabled={confirmarMutation.isPending}
+                        className="text-xs text-teal-600 hover:text-teal-800 font-medium transition-colors disabled:opacity-50"
+                      >
+                        Confirmar presença
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

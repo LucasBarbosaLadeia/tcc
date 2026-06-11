@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Plus, Search, Stethoscope, X } from 'lucide-react';
+import { Plus, Search, Stethoscope, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useProfissionais, useCreateProfissional } from '@/hooks/useProfissionais';
+import { useProfissionais, useCreateProfissional, useDeleteProfissional } from '@/hooks/useProfissionais';
 import { useEspecialidades } from '@/hooks/useEspecialidades';
 import { useUnidades } from '@/hooks/useUnidades';
 
@@ -14,6 +14,7 @@ const TIPO_REGISTRO = ['CRM', 'COREN', 'CRP'];
 export function ProfissionaisPage() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState({
     nome_completo: '', cpf: '', registro_profissional: '',
     tipo_registro: 'CRM', id_especialidade: 0, id_unidade: 0, telefone: '',
@@ -23,6 +24,7 @@ export function ProfissionaisPage() {
   const { data: especialidades } = useEspecialidades();
   const { data: unidades } = useUnidades();
   const createMutation = useCreateProfissional();
+  const deleteMutation = useDeleteProfissional();
 
   const filtered = (profissionais ?? []).filter((p) => {
     const q = search.toLowerCase();
@@ -96,6 +98,7 @@ export function ProfissionaisPage() {
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Registro</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Telefone</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                <th className="px-5 py-3.5" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -119,12 +122,53 @@ export function ProfissionaisPage() {
                       {p.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <button
+                      onClick={() => setDeleteId(p.id_profissional)}
+                      className="text-gray-300 hover:text-red-500 transition-colors"
+                      title="Excluir profissional"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {deleteId !== null && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-base font-bold text-gray-900 mb-1">Excluir Profissional</h3>
+            <p className="text-sm text-gray-500 mb-5">Tem certeza que deseja excluir este profissional? Esta ação não pode ser desfeita.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="flex-1 py-2.5 border border-gray-200 text-sm font-semibold text-gray-600 rounded-xl hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await deleteMutation.mutateAsync(deleteId);
+                    toast.success('Profissional excluído.');
+                    setDeleteId(null);
+                  } catch {
+                    toast.error('Erro ao excluir profissional.');
+                  }
+                }}
+                disabled={deleteMutation.isPending}
+                className="flex-1 py-2.5 bg-red-500 text-white text-sm font-semibold rounded-xl hover:bg-red-600 disabled:opacity-60"
+              >
+                {deleteMutation.isPending ? 'Excluindo…' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">

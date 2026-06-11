@@ -43,9 +43,23 @@ export function NovoAgendamentoPage() {
   const { data: horarios, isLoading: loadingHor } = useHorarios();
   const createMutation = useCreateAgendamento();
 
-  const profissionaisFiltrados = (profissionais ?? []).filter(
-    (p) => p.id_especialidade === especialidade?.id_especialidade,
+  const especialidadesComDisponibilidade = (especialidades ?? []).filter((esp) =>
+    (profissionais ?? []).some((p) => {
+      if (p.id_especialidade !== esp.id_especialidade) return false;
+      const profAgendaIds = (agendas ?? [])
+        .filter((a) => a.id_profissional === p.id_profissional)
+        .map((a) => a.id_agenda);
+      return (horarios ?? []).some((h) => profAgendaIds.includes(h.id_agenda));
+    }),
   );
+
+  const profissionaisFiltrados = (profissionais ?? []).filter((p) => {
+    if (p.id_especialidade !== especialidade?.id_especialidade) return false;
+    const profAgendaIds = (agendas ?? [])
+      .filter((a) => a.id_profissional === p.id_profissional)
+      .map((a) => a.id_agenda);
+    return (horarios ?? []).some((h) => profAgendaIds.includes(h.id_agenda));
+  });
 
   const agendaIds = (agendas ?? [])
     .filter((a) => a.id_profissional === profissional?.id_profissional)
@@ -118,13 +132,13 @@ export function NovoAgendamentoPage() {
           <p className="text-sm text-gray-600 mb-4">Selecione a especialidade desejada:</p>
           {loadingEsp ? (
             <p className="text-center py-10 text-sm text-gray-400">Carregando especialidades…</p>
-          ) : !especialidades?.length ? (
+          ) : !especialidadesComDisponibilidade.length ? (
             <p className="text-center py-10 text-sm text-gray-400">
               Nenhuma especialidade disponível no momento.
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {especialidades.map((esp) => (
+              {especialidadesComDisponibilidade.map((esp) => (
                 <button
                   key={esp.id_especialidade}
                   onClick={() => {

@@ -27,3 +27,10 @@ export async function cancelAgendamento(
   });
   return data;
 }
+
+export async function confirmarPresenca(id: number): Promise<Agendamento> {
+  const { data } = await api.put<Agendamento>(`/agendamentos/${id}`, {
+    status: 'Realizada',
+  });
+  return data;
+}

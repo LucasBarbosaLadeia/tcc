@@ -30,3 +30,7 @@ export async function createUnidade(input: CreateUnidadeInput): Promise<Unidade>
   const { data } = await api.post<Unidade>('/unidades', input);
   return data;
 }
+
+export async function deleteUnidade(id: number): Promise<void> {
+  await api.delete(`/unidades/${id}`);
+}

@@ -20,3 +20,7 @@ export async function createProfissional(input: CreateProfissionalInput): Promis
   const { data } = await api.post<Profissional>('/profissionais', input);
   return data;
 }
+
+export async function deleteProfissional(id: number): Promise<void> {
+  await api.delete(`/profissionais/${id}`);
+}

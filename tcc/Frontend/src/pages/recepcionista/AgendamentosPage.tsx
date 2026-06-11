@@ -3,7 +3,7 @@ import { Calendar, Plus, Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useAgendamentos, useCancelAgendamento, useCreateAgendamento } from '@/hooks/useAgendamentos';
+import { useAgendamentos, useCancelAgendamento, useConfirmarPresenca, useCreateAgendamento } from '@/hooks/useAgendamentos';
 import { useAllPacientes } from '@/hooks/usePaciente';
 import { useHorarios } from '@/hooks/useHorarios';
 import type { AgendamentoStatus } from '@/types/agendamento';
@@ -40,6 +40,7 @@ export function AgendamentosPage() {
 
   const { data: agendamentos, isLoading, error } = useAgendamentos();
   const cancelMutation = useCancelAgendamento();
+  const confirmarMutation = useConfirmarPresenca();
   const createMutation = useCreateAgendamento();
   const { data: pacientes } = useAllPacientes();
   const { data: horarios } = useHorarios();
@@ -163,12 +164,28 @@ export function AgendamentosPage() {
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     {agd.status === 'Agendado' && (
-                      <button
-                        onClick={() => { setCancelId(agd.id_agendamento); setMotivo(''); }}
-                        className="text-xs text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        Cancelar
-                      </button>
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          onClick={async () => {
+                            try {
+                              await confirmarMutation.mutateAsync(agd.id_agendamento);
+                              toast.success('Presença confirmada!');
+                            } catch {
+                              toast.error('Erro ao confirmar presença.');
+                            }
+                          }}
+                          disabled={confirmarMutation.isPending}
+                          className="text-xs text-teal-600 hover:text-teal-800 font-medium transition-colors disabled:opacity-50"
+                        >
+                          Confirmar presença
+                        </button>
+                        <button
+                          onClick={() => { setCancelId(agd.id_agendamento); setMotivo(''); }}
+                          className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

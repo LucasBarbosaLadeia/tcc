@@ -122,6 +122,8 @@ export function AppLayout({ navItems }: { navItems: NavItem[] }) {
         {/* Top bar */}
         <header className="flex items-center h-16 px-4 gap-3 bg-white border-b border-gray-100 shrink-0">
           <button
+            type="button"
+            aria-label="Abrir menu"
             onClick={() => setOpen(true)}
             className="p-2 -ml-1 rounded-lg text-gray-500 hover:bg-gray-100 md:hidden"
           >

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   cancelAgendamento,
+  confirmarPresenca,
   createAgendamento,
   getAgendamentos,
   type CreateAgendamentoInput,
@@ -26,6 +27,14 @@ export function useCancelAgendamento() {
   return useMutation({
     mutationFn: ({ id, motivo }: { id: number; motivo: string }) =>
       cancelAgendamento(id, motivo),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['agendamentos'] }),
+  });
+}
+
+export function useConfirmarPresenca() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => confirmarPresenca(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['agendamentos'] }),
   });
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createProfissional, getProfissionais, type CreateProfissionalInput } from '@/services/profissionalService';
+import { createProfissional, deleteProfissional, getProfissionais, type CreateProfissionalInput } from '@/services/profissionalService';
 
 export function useProfissionais() {
   return useQuery({
@@ -12,6 +12,14 @@ export function useCreateProfissional() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateProfissionalInput) => createProfissional(input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['profissionais'] }),
+  });
+}
+
+export function useDeleteProfissional() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteProfissional(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['profissionais'] }),
   });
 }
