@@ -12,7 +12,6 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -33,7 +32,7 @@ router.use(authorize("ADMIN"));
  *       201:
  *         description: Agenda criada
  */
-router.post("/", createAgenda);
+router.post("/", authorize("ADMIN", "RECEPCIONISTA"), createAgenda);
 
 /**
  * @swagger
@@ -48,7 +47,7 @@ router.post("/", createAgenda);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", getAllAgendas);
+router.get("/", authorize("PACIENTE", "RECEPCIONISTA", "ADMIN"), getAllAgendas);
 
 /**
  * @swagger
@@ -71,7 +70,7 @@ router.get("/", getAllAgendas);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.get("/:id", getAgendaById);
+router.get("/:id", authorize("RECEPCIONISTA", "ADMIN"), getAgendaById);
 
 /**
  * @swagger
@@ -100,7 +99,7 @@ router.get("/:id", getAgendaById);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.put("/:id", updateAgenda);
+router.put("/:id", authorize("ADMIN", "RECEPCIONISTA"), updateAgenda);
 
 /**
  * @swagger
@@ -123,6 +122,6 @@ router.put("/:id", updateAgenda);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.delete("/:id", deleteAgenda);
+router.delete("/:id", authorize("ADMIN", "RECEPCIONISTA"), deleteAgenda);
 
 export default router;

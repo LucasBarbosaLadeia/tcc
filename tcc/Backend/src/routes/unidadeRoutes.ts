@@ -12,7 +12,6 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -33,7 +32,7 @@ router.use(authorize("ADMIN"));
  *       201:
  *         description: Unidade criada
  */
-router.post("/", createUnidade);
+router.post("/", authorize("ADMIN"), createUnidade);
 
 /**
  * @swagger
@@ -48,7 +47,7 @@ router.post("/", createUnidade);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", getAllUnidades);
+router.get("/", authorize("ADMIN", "RECEPCIONISTA"), getAllUnidades);
 
 /**
  * @swagger
@@ -71,7 +70,7 @@ router.get("/", getAllUnidades);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.get("/:id", getUnidadeById);
+router.get("/:id", authorize("ADMIN", "RECEPCIONISTA"), getUnidadeById);
 
 /**
  * @swagger
@@ -100,7 +99,7 @@ router.get("/:id", getUnidadeById);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.put("/:id", updateUnidade);
+router.put("/:id", authorize("ADMIN"), updateUnidade);
 
 /**
  * @swagger
@@ -123,6 +122,6 @@ router.put("/:id", updateUnidade);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.delete("/:id", deleteUnidade);
+router.delete("/:id", authorize("ADMIN"), deleteUnidade);
 
 export default router;

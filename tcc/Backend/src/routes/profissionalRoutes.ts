@@ -12,7 +12,6 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -33,7 +32,7 @@ router.use(authorize("ADMIN"));
  *       201:
  *         description: Profissional criado
  */
-router.post("/", createProfissional);
+router.post("/", authorize("ADMIN"), createProfissional);
 
 /**
  * @swagger
@@ -100,7 +99,7 @@ router.get("/:id", getProfissionalById);
  *       404:
  *         description: Profissional nao encontrado
  */
-router.put("/:id", updateProfissional);
+router.put("/:id", authorize("ADMIN"), updateProfissional);
 
 /**
  * @swagger
@@ -123,6 +122,6 @@ router.put("/:id", updateProfissional);
  *       404:
  *         description: Profissional nao encontrado
  */
-router.delete("/:id", deleteProfissional);
+router.delete("/:id", authorize("ADMIN"), deleteProfissional);
 
 export default router;

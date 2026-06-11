@@ -1,16 +1,18 @@
 import sequelize from "./config/database";
 import app from "./app";
 
-// Importar models e suas relações
-import "./models/profissionalModel";
+// Importar models para que sejam registrados no Sequelize antes do sync
 import "./models/usuarioModel";
-import "./models/agendamentoModel";
-import "./models/horarioModel";
 import "./models/especialidadeModel";
 import "./models/unidadeModel";
+import "./models/profissionalModel";
+import "./models/pacienteModel";
+import "./models/agendaModel";
+import "./models/horarioModel";
+import "./models/agendamentoModel";
 import { logger } from "./config/logger";
 
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 // Testar conexão com banco de dados com retry/backoff
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));

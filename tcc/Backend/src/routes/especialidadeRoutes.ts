@@ -12,7 +12,6 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -33,7 +32,7 @@ router.use(authorize("ADMIN"));
  *       201:
  *         description: Especialidade criada
  */
-router.post("/", createEspecialidade);
+router.post("/", authorize("ADMIN"), createEspecialidade);
 
 /**
  * @swagger
@@ -100,7 +99,7 @@ router.get("/:id", getEspecialidadeById);
  *       404:
  *         description: Especialidade nao encontrada
  */
-router.put("/:id", updateEspecialidade);
+router.put("/:id", authorize("ADMIN"), updateEspecialidade);
 
 /**
  * @swagger
@@ -123,6 +122,6 @@ router.put("/:id", updateEspecialidade);
  *       404:
  *         description: Especialidade nao encontrada
  */
-router.delete("/:id", deleteEspecialidade);
+router.delete("/:id", authorize("ADMIN"), deleteEspecialidade);
 
 export default router;

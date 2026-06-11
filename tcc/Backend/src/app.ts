@@ -21,19 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Small test helper: allow tests to set req.user via header `x-user` containing JSON
-app.use((req, _res, next) => {
-  const u = req.header("x-user");
-  if (u) {
-    try {
-      (req as any).user = JSON.parse(u as string);
-    } catch (e) {
-      // ignore parse errors
-    }
-  }
-  next();
-});
-
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/agendamentos", agendamentoRoutes);
 app.use("/api/datas", dataRoutes);

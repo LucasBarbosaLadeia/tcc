@@ -1,6 +1,7 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Op } from "sequelize";
 import Usuario from "../models/usuarioModel";
+import Paciente from "../models/pacienteModel";
 import { comparePassword } from "../utils/password";
 
 type AuthResult = {
@@ -47,5 +48,20 @@ export const authenticateLogin = async (
   );
 
   const { senha: _senha, ...usuarioSemSenha } = usuario.toJSON();
-  return { token, usuario: usuarioSemSenha };
+
+  let id_paciente: number | undefined;
+  if (usuario.get("perfil") === "PACIENTE") {
+    const paciente = await Paciente.findOne({
+      where: { id_usuario: usuario.get("id_usuario") as number },
+      attributes: ["id_paciente"],
+    });
+    if (paciente) {
+      id_paciente = Number(paciente.get("id_paciente"));
+    }
+  }
+
+  return {
+    token,
+    usuario: id_paciente !== undefined ? { ...usuarioSemSenha, id_paciente } : usuarioSemSenha,
+  };
 };

@@ -17,8 +17,6 @@ export const createUsuario = async (req: Request, res: Response) => {
     if (existente) return res.status(400).json({ error: "CPF já cadastrado" });
 
     const senhaHash = await hashPassword(senha);
-    console.log("Senha original:", senha);
-    console.log("Senha hash:", senhaHash);
     const perfilFinal =
       requester?.perfil === "ADMIN" && perfil
         ? (perfil as PerfilUsuario)
