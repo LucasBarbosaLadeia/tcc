@@ -55,6 +55,35 @@ services:
       - backend
     networks:
       - app-net
+  loki:
+    image: grafana/loki
+    restart: on-failure
+    user: "0"
+    command: ["-config.file=/etc/loki/loki.yml"]
+    container_name: loki
+    ports:
+      - "3100:3000"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/loki.yml:ro
+      - /var/loki
+    networks:
+      - app-net
+  grafana:
+    image: grafana/grafana
+    restart: on-failure
+    depends_on:
+      - loki
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    container_name: grafana
+    volumes:
+      - /var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3001:3000"
+    networks:
+      - app-net
 
 # =========================
 # Volumes e redes
