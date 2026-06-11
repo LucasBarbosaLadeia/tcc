@@ -13,7 +13,7 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.post("/", authorize("ADMIN"), createUsuario);
+router.post("/", authorize("ADMIN", "RECEPCIONISTA"), createUsuario);
 
 /**
  * @swagger

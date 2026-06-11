@@ -12,7 +12,6 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(authorize("ADMIN"));
 
 /**
  * @swagger
@@ -33,13 +32,13 @@ router.use(authorize("ADMIN"));
  *       201:
  *         description: Horario criado
  */
-router.post("/", createHorario);
+router.post("/", authorize("ADMIN"), createHorario);
 
 /**
  * @swagger
  * /api/datas:
  *   get:
- *     summary: Lista horarios
+ *     summary: Lista horarios disponiveis
  *     tags:
  *       - Horarios
  *     security:
@@ -48,7 +47,7 @@ router.post("/", createHorario);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", getAllHorarios);
+router.get("/", authorize("PACIENTE", "RECEPCIONISTA", "ADMIN"), getAllHorarios);
 
 /**
  * @swagger
@@ -71,7 +70,7 @@ router.get("/", getAllHorarios);
  *       404:
  *         description: Horario nao encontrado
  */
-router.get("/:id", getHorarioById);
+router.get("/:id", authorize("PACIENTE", "RECEPCIONISTA", "ADMIN"), getHorarioById);
 
 /**
  * @swagger
@@ -100,7 +99,7 @@ router.get("/:id", getHorarioById);
  *       404:
  *         description: Horario nao encontrado
  */
-router.put("/:id", updateHorario);
+router.put("/:id", authorize("ADMIN"), updateHorario);
 
 /**
  * @swagger
@@ -123,6 +122,6 @@ router.put("/:id", updateHorario);
  *       404:
  *         description: Horario nao encontrado
  */
-router.delete("/:id", deleteHorario);
+router.delete("/:id", authorize("ADMIN"), deleteHorario);
 
 export default router;

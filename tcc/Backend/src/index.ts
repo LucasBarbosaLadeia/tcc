@@ -1,111 +1,17 @@
-import swaggerUi from "swagger-ui-express";
 import sequelize from "./config/database";
 import app from "./app";
 
-// Importar models e suas relações
-import "./models/profissionalModel";
+// Importar models para que sejam registrados no Sequelize antes do sync
 import "./models/usuarioModel";
-import "./models/agendamentoModel";
-import "./models/horarioModel";
 import "./models/especialidadeModel";
 import "./models/unidadeModel";
+import "./models/profissionalModel";
+import "./models/pacienteModel";
+import "./models/agendaModel";
+import "./models/horarioModel";
+import "./models/agendamentoModel";
 
-// Importar rotas
-import usuarioRoutes from "./routes/usuarioRoutes";
-import agendamentoRoutes from "./routes/agendamentoRoutes";
-import dataRoutes from "./routes/horarioRoutes";
-import especialidadeRoutes from "./routes/especialidadeRoutes";
-import unidadeRoutes from "./routes/unidadeRoutes";
-import pacienteRoutes from "./routes/pacienteRoutes";
-import agendaRoutes from "./routes/agendaRoutes";
-import profissionalRoutes from "./routes/profissionalRoutes";
-
-const swaggerServerUrl = process.env.SWAGGER_SERVER_URL || "/";
-
-const swaggerSpec = {
-  openapi: "3.0.0",
-  info: {
-    title: "Sistema de Agendamento de Consultas Médicas",
-    version: "1.0.0",
-    description: "Documentação da API do projeto TCC.",
-  },
-  servers: [
-    {
-      url: swaggerServerUrl,
-      description: "Servidor base da API",
-    },
-  ],
-  paths: {
-    "/api/usuarios": {
-      get: {
-        summary: "Lista todos os usuários",
-        tags: ["Usuários"],
-        responses: {
-          200: { description: "Lista retornada com sucesso" },
-        },
-      },
-      post: {
-        summary: "Cria um usuário",
-        tags: ["Usuários"],
-        responses: {
-          201: { description: "Usuário criado" },
-        },
-      },
-    },
-    "/api/agendamentos": {
-      get: {
-        summary: "Lista todos os agendamentos",
-        tags: ["Agendamentos"],
-        responses: {
-          200: { description: "Lista retornada com sucesso" },
-        },
-      },
-      post: {
-        summary: "Cria um agendamento",
-        tags: ["Agendamentos"],
-        responses: {
-          201: { description: "Agendamento criado" },
-        },
-      },
-    },
-    "/api/especialidades": {
-      get: {
-        summary: "Lista especialidades",
-        tags: ["Especialidades"],
-        responses: {
-          200: { description: "Lista retornada com sucesso" },
-        },
-      },
-    },
-    "/api/unidades": {
-      get: {
-        summary: "Lista unidades",
-        tags: ["Unidades"],
-        responses: {
-          200: { description: "Lista retornada com sucesso" },
-        },
-      },
-    },
-  },
-};
-
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001; // pegar da env quando disponível
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.get("/api-docs.json", (req, res) => {
-  res.json(swaggerSpec);
-});
-
-// Usar rotas da API (cada recurso em seu prefixo)
-app.use("/api/usuarios", usuarioRoutes);
-app.use("/api/agendamentos", agendamentoRoutes);
-app.use("/api/datas", dataRoutes);
-app.use("/api/especialidades", especialidadeRoutes);
-app.use("/api/unidades", unidadeRoutes);
-app.use("/api/pacientes", pacienteRoutes);
-app.use("/api/agendas", agendaRoutes);
-app.use("/api/profissionais", profissionalRoutes);
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
 // Testar conexão com banco de dados com retry/backoff
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));

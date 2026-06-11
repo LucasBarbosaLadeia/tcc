@@ -8,4 +8,5 @@ export interface User {
   cpf?: string;
   telefone?: string;
   ativo?: boolean;
+  id_paciente?: number;
 }

@@ -1,10 +1,10 @@
 export interface Profissional {
-  id: number | string;
-  usuarioId?: number | string;
-  nome: string;
-  conselhoNumero?: string;
-  especialidadeId?: number | string;
-  unidadeId?: number | string;
+  id_profissional: number;
+  nome_completo: string;
+  registro_profissional: string;
+  tipo_registro?: string;
+  id_especialidade: number;
+  id_unidade: number;
   telefone?: string;
-  email?: string;
+  ativo?: boolean;
 }
