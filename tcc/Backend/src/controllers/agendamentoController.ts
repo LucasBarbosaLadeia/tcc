@@ -69,7 +69,7 @@ export const createAgendamento = async (req: Request, res: Response) => {
 export const getAllAgendamentos = async (_req: Request, res: Response) => {
   try {
     const user = _req.user;
-    let items;
+    let items: Agendamento[];
 
     if (user?.perfil === "PACIENTE" && user.id_paciente) {
       items = await Agendamento.findAll({ where: { id_paciente: user.id_paciente } });
@@ -78,7 +78,9 @@ export const getAllAgendamentos = async (_req: Request, res: Response) => {
     }
 
     // Enrich with horario data so the frontend can show date/time without extra requests
-    const horarioIds = [...new Set(items.map((a) => a.get("id_horario") as number))];
+    const horarioIds: number[] = Array.from(new Set<number>(
+      items.map((a) => a.id_horario).filter((id): id is number => typeof id === "number" && !isNaN(id)),
+    ));
     const horarios = horarioIds.length
       ? await Horario.findAll({ where: { id_horario: horarioIds } })
       : [];
@@ -90,8 +92,8 @@ export const getAllAgendamentos = async (_req: Request, res: Response) => {
     );
 
     const result = items.map((a) => ({
-      ...a.toJSON(),
-      horario: horarioMap.get(a.get("id_horario") as number) ?? null,
+      ...(a.toJSON?.() ?? {}),
+      horario: horarioMap.get(a.id_horario) ?? null,
     }));
 
     return res.status(200).json(result);

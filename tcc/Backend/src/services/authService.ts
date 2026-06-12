@@ -51,12 +51,16 @@ export const authenticateLogin = async (
 
   let id_paciente: number | undefined;
   if (usuario.get("perfil") === "PACIENTE") {
-    const paciente = await Paciente.findOne({
-      where: { id_usuario: usuario.get("id_usuario") as number },
-      attributes: ["id_paciente"],
-    });
-    if (paciente) {
-      id_paciente = Number(paciente.get("id_paciente"));
+    try {
+      const paciente = await Paciente.findOne({
+        where: { id_usuario: usuario.get("id_usuario") as number },
+        attributes: ["id_paciente"],
+      });
+      if (paciente) {
+        id_paciente = Number(paciente.get("id_paciente"));
+      }
+    } catch {
+      // id_paciente permanece undefined quando o lookup falhar
     }
   }
 

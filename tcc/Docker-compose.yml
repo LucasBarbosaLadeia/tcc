@@ -72,6 +72,20 @@ services:
       - backend
     networks:
       - app-net
+  promtail:
+    image: grafana/promtail
+    container_name: promtail
+    restart: on-failure
+    command: ["-config.file=/etc/promtail/promtail.yml"]
+    volumes:
+      - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - loki
+      - backend
+    networks:
+      - app-net
+
   loki:
     image: grafana/loki
     restart: on-failure

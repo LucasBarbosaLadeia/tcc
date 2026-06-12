@@ -13,6 +13,10 @@ export const createUsuario = async (req: Request, res: Response) => {
         .json({ error: "Dados obrigatórios não informados" });
     }
 
+    if (perfil && perfil !== "PACIENTE" && requester?.perfil !== "ADMIN") {
+      return res.status(403).json({ error: "Sem permissão para criar usuário com este perfil" });
+    }
+
     const existente = await Usuario.findOne({ where: { cpf } });
     if (existente) return res.status(400).json({ error: "CPF já cadastrado" });
 
