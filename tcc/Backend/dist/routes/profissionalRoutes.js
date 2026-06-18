@@ -6,7 +6,6 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.use((0, authorize_1.authorize)("ADMIN"));
 /**
  * @swagger
  * /api/profissionais:
@@ -26,7 +25,7 @@ router.use((0, authorize_1.authorize)("ADMIN"));
  *       201:
  *         description: Profissional criado
  */
-router.post("/", profissionalController_1.createProfissional);
+router.post("/", (0, authorize_1.authorize)("ADMIN"), profissionalController_1.createProfissional);
 /**
  * @swagger
  * /api/profissionais:
@@ -90,7 +89,7 @@ router.get("/:id", profissionalController_1.getProfissionalById);
  *       404:
  *         description: Profissional nao encontrado
  */
-router.put("/:id", profissionalController_1.updateProfissional);
+router.put("/:id", (0, authorize_1.authorize)("ADMIN"), profissionalController_1.updateProfissional);
 /**
  * @swagger
  * /api/profissionais/{id}:
@@ -112,6 +111,6 @@ router.put("/:id", profissionalController_1.updateProfissional);
  *       404:
  *         description: Profissional nao encontrado
  */
-router.delete("/:id", profissionalController_1.deleteProfissional);
+router.delete("/:id", (0, authorize_1.authorize)("ADMIN"), profissionalController_1.deleteProfissional);
 exports.default = router;
 //# sourceMappingURL=profissionalRoutes.js.map

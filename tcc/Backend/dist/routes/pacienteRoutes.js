@@ -67,7 +67,7 @@ router.get("/", (0, authorize_1.authorize)("RECEPCIONISTA", "ADMIN"), pacienteCo
 router.get("/:id", (0, authorize_1.authorize)("RECEPCIONISTA", "ADMIN", "PACIENTE"), (req, res, next) => {
     const user = req.user;
     const id = Number(req.params.id);
-    if (user?.perfil === "PACIENTE" && user.id_paciente !== id) {
+    if (user?.perfil === "PACIENTE" && Number(user.id_paciente) !== id) {
         return res.status(403).json({ error: "Acesso nao autorizado" });
     }
     return next();
@@ -103,7 +103,7 @@ router.get("/:id", (0, authorize_1.authorize)("RECEPCIONISTA", "ADMIN", "PACIENT
 router.put("/:id", (0, authorize_1.authorize)("RECEPCIONISTA", "ADMIN", "PACIENTE"), (req, res, next) => {
     const user = req.user;
     const id = Number(req.params.id);
-    if (user?.perfil === "PACIENTE" && user.id_paciente !== id) {
+    if (user?.perfil === "PACIENTE" && Number(user.id_paciente) !== id) {
         return res.status(403).json({ error: "Acesso nao autorizado" });
     }
     return next();

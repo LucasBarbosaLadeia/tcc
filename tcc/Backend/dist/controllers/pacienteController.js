@@ -38,7 +38,7 @@ const getPacienteById = async (req, res) => {
         if (isNaN(id))
             return res.status(400).json({ error: "ID inválido" });
         const user = req.user;
-        if (user?.perfil === "PACIENTE" && user.id_paciente !== id) {
+        if (user?.perfil === "PACIENTE" && Number(user.id_paciente) !== id) {
             return res.status(403).json({ error: "Acesso nao autorizado" });
         }
         const item = await pacienteModel_1.default.findByPk(id);
@@ -58,7 +58,7 @@ const updatePaciente = async (req, res) => {
         if (isNaN(id))
             return res.status(400).json({ error: "ID inválido" });
         const user = req.user;
-        if (user?.perfil === "PACIENTE" && user.id_paciente !== id) {
+        if (user?.perfil === "PACIENTE" && Number(user.id_paciente) !== id) {
             return res.status(403).json({ error: "Acesso nao autorizado" });
         }
         const item = await pacienteModel_1.default.findByPk(id);

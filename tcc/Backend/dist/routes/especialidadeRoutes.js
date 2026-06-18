@@ -6,7 +6,6 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.use((0, authorize_1.authorize)("ADMIN"));
 /**
  * @swagger
  * /api/especialidades:
@@ -26,7 +25,7 @@ router.use((0, authorize_1.authorize)("ADMIN"));
  *       201:
  *         description: Especialidade criada
  */
-router.post("/", especialidadeController_1.createEspecialidade);
+router.post("/", (0, authorize_1.authorize)("ADMIN"), especialidadeController_1.createEspecialidade);
 /**
  * @swagger
  * /api/especialidades:
@@ -90,7 +89,7 @@ router.get("/:id", especialidadeController_1.getEspecialidadeById);
  *       404:
  *         description: Especialidade nao encontrada
  */
-router.put("/:id", especialidadeController_1.updateEspecialidade);
+router.put("/:id", (0, authorize_1.authorize)("ADMIN"), especialidadeController_1.updateEspecialidade);
 /**
  * @swagger
  * /api/especialidades/{id}:
@@ -112,6 +111,6 @@ router.put("/:id", especialidadeController_1.updateEspecialidade);
  *       404:
  *         description: Especialidade nao encontrada
  */
-router.delete("/:id", especialidadeController_1.deleteEspecialidade);
+router.delete("/:id", (0, authorize_1.authorize)("ADMIN"), especialidadeController_1.deleteEspecialidade);
 exports.default = router;
 //# sourceMappingURL=especialidadeRoutes.js.map

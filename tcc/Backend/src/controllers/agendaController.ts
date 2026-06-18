@@ -88,7 +88,7 @@ export const createAgenda = async (req: Request, res: Response) => {
 
 export const getAllAgendas = async (_req: Request, res: Response) => {
   try {
-    const items = await Agenda.findAll();
+    const items = await Agenda.findAll({ where: { ativo: true } });
     return res.status(200).json(items);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar agendas", details: error });
@@ -152,8 +152,15 @@ export const deleteAgenda = async (req: Request, res: Response) => {
     const item = await Agenda.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agenda não encontrada" });
 
+    const horarioCount = await Horario.count({ where: { id_agenda: id } });
+
+    if (horarioCount > 0) {
+      await item.update({ ativo: false });
+      return res.status(200).json({ message: "Agenda inativada com sucesso." });
+    }
+
     await item.destroy();
-    return res.status(200).json({ message: "Agenda deletada com sucesso" });
+    return res.status(200).json({ message: "Agenda removida com sucesso." });
   } catch (error) {
     return res.status(500).json({ error: "Erro ao deletar agenda", details: error });
   }

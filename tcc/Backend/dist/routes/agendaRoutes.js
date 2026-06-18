@@ -6,7 +6,6 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.use((0, authorize_1.authorize)("ADMIN"));
 /**
  * @swagger
  * /api/agendas:
@@ -26,7 +25,7 @@ router.use((0, authorize_1.authorize)("ADMIN"));
  *       201:
  *         description: Agenda criada
  */
-router.post("/", agendaController_1.createAgenda);
+router.post("/", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), agendaController_1.createAgenda);
 /**
  * @swagger
  * /api/agendas:
@@ -40,7 +39,7 @@ router.post("/", agendaController_1.createAgenda);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", agendaController_1.getAllAgendas);
+router.get("/", (0, authorize_1.authorize)("PACIENTE", "RECEPCIONISTA", "ADMIN"), agendaController_1.getAllAgendas);
 /**
  * @swagger
  * /api/agendas/{id}:
@@ -62,7 +61,7 @@ router.get("/", agendaController_1.getAllAgendas);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.get("/:id", agendaController_1.getAgendaById);
+router.get("/:id", (0, authorize_1.authorize)("RECEPCIONISTA", "ADMIN"), agendaController_1.getAgendaById);
 /**
  * @swagger
  * /api/agendas/{id}:
@@ -90,7 +89,7 @@ router.get("/:id", agendaController_1.getAgendaById);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.put("/:id", agendaController_1.updateAgenda);
+router.put("/:id", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), agendaController_1.updateAgenda);
 /**
  * @swagger
  * /api/agendas/{id}:
@@ -112,6 +111,6 @@ router.put("/:id", agendaController_1.updateAgenda);
  *       404:
  *         description: Agenda nao encontrada
  */
-router.delete("/:id", agendaController_1.deleteAgenda);
+router.delete("/:id", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), agendaController_1.deleteAgenda);
 exports.default = router;
 //# sourceMappingURL=agendaRoutes.js.map

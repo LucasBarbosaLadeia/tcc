@@ -6,7 +6,6 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.use((0, authorize_1.authorize)("ADMIN"));
 /**
  * @swagger
  * /api/datas:
@@ -26,12 +25,12 @@ router.use((0, authorize_1.authorize)("ADMIN"));
  *       201:
  *         description: Horario criado
  */
-router.post("/", horarioController_1.createHorario);
+router.post("/", (0, authorize_1.authorize)("ADMIN"), horarioController_1.createHorario);
 /**
  * @swagger
  * /api/datas:
  *   get:
- *     summary: Lista horarios
+ *     summary: Lista horarios disponiveis
  *     tags:
  *       - Horarios
  *     security:
@@ -40,7 +39,7 @@ router.post("/", horarioController_1.createHorario);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", horarioController_1.getAllHorarios);
+router.get("/", (0, authorize_1.authorize)("PACIENTE", "RECEPCIONISTA", "ADMIN"), horarioController_1.getAllHorarios);
 /**
  * @swagger
  * /api/datas/{id}:
@@ -62,7 +61,7 @@ router.get("/", horarioController_1.getAllHorarios);
  *       404:
  *         description: Horario nao encontrado
  */
-router.get("/:id", horarioController_1.getHorarioById);
+router.get("/:id", (0, authorize_1.authorize)("PACIENTE", "RECEPCIONISTA", "ADMIN"), horarioController_1.getHorarioById);
 /**
  * @swagger
  * /api/datas/{id}:
@@ -90,7 +89,7 @@ router.get("/:id", horarioController_1.getHorarioById);
  *       404:
  *         description: Horario nao encontrado
  */
-router.put("/:id", horarioController_1.updateHorario);
+router.put("/:id", (0, authorize_1.authorize)("ADMIN"), horarioController_1.updateHorario);
 /**
  * @swagger
  * /api/datas/{id}:
@@ -112,6 +111,6 @@ router.put("/:id", horarioController_1.updateHorario);
  *       404:
  *         description: Horario nao encontrado
  */
-router.delete("/:id", horarioController_1.deleteHorario);
+router.delete("/:id", (0, authorize_1.authorize)("ADMIN"), horarioController_1.deleteHorario);
 exports.default = router;
 //# sourceMappingURL=horarioRoutes.js.map

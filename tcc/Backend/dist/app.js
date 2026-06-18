@@ -21,19 +21,6 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/api-docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default));
-// Small test helper: allow tests to set req.user via header `x-user` containing JSON
-app.use((req, _res, next) => {
-    const u = req.header("x-user");
-    if (u) {
-        try {
-            req.user = JSON.parse(u);
-        }
-        catch (e) {
-            // ignore parse errors
-        }
-    }
-    next();
-});
 app.use("/api/usuarios", usuarioRoutes_1.default);
 app.use("/api/agendamentos", agendamentoRoutes_1.default);
 app.use("/api/datas", horarioRoutes_1.default);

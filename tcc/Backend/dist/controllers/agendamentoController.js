@@ -69,12 +69,27 @@ exports.createAgendamento = createAgendamento;
 const getAllAgendamentos = async (_req, res) => {
     try {
         const user = _req.user;
+        let items;
         if (user?.perfil === "PACIENTE" && user.id_paciente) {
-            const items = await agendamentoModel_1.default.findAll({ where: { id_paciente: user.id_paciente } });
-            return res.status(200).json(items);
+            items = await agendamentoModel_1.default.findAll({ where: { id_paciente: user.id_paciente } });
         }
-        const items = await agendamentoModel_1.default.findAll();
-        return res.status(200).json(items);
+        else {
+            items = await agendamentoModel_1.default.findAll();
+        }
+        // Enrich with horario data so the frontend can show date/time without extra requests
+        const horarioIds = Array.from(new Set(items.map((a) => a.id_horario).filter((id) => typeof id === "number" && !isNaN(id))));
+        const horarios = horarioIds.length
+            ? await horarioModel_1.default.findAll({ where: { id_horario: horarioIds } })
+            : [];
+        const horarioMap = new Map(horarios.map((h) => [
+            h.get("id_horario"),
+            { data_hora_inicio: h.get("data_hora_inicio"), data_hora_fim: h.get("data_hora_fim") },
+        ]));
+        const result = items.map((a) => ({
+            ...(a.toJSON?.() ?? {}),
+            horario: horarioMap.get(a.id_horario) ?? null,
+        }));
+        return res.status(200).json(result);
     }
     catch (error) {
         return res.status(500).json({ error: "Erro ao buscar agendamentos", details: error });

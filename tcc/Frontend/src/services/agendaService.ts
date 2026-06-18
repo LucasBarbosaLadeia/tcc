@@ -30,6 +30,7 @@ export async function updateAgenda(id: number, input: Partial<CreateAgendaInput>
   return data;
 }
 
-export async function deleteAgenda(id: number): Promise<void> {
-  await api.delete(`/agendas/${id}`);
+export async function deleteAgenda(id: number): Promise<{ message: string }> {
+  const { data } = await api.delete<{ message: string }>(`/agendas/${id}`);
+  return data;
 }

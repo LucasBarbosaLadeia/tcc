@@ -6,7 +6,6 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.use((0, authorize_1.authorize)("ADMIN"));
 /**
  * @swagger
  * /api/unidades:
@@ -26,7 +25,7 @@ router.use((0, authorize_1.authorize)("ADMIN"));
  *       201:
  *         description: Unidade criada
  */
-router.post("/", unidadeController_1.createUnidade);
+router.post("/", (0, authorize_1.authorize)("ADMIN"), unidadeController_1.createUnidade);
 /**
  * @swagger
  * /api/unidades:
@@ -40,7 +39,7 @@ router.post("/", unidadeController_1.createUnidade);
  *       200:
  *         description: Lista retornada com sucesso
  */
-router.get("/", unidadeController_1.getAllUnidades);
+router.get("/", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), unidadeController_1.getAllUnidades);
 /**
  * @swagger
  * /api/unidades/{id}:
@@ -62,7 +61,7 @@ router.get("/", unidadeController_1.getAllUnidades);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.get("/:id", unidadeController_1.getUnidadeById);
+router.get("/:id", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), unidadeController_1.getUnidadeById);
 /**
  * @swagger
  * /api/unidades/{id}:
@@ -90,7 +89,7 @@ router.get("/:id", unidadeController_1.getUnidadeById);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.put("/:id", unidadeController_1.updateUnidade);
+router.put("/:id", (0, authorize_1.authorize)("ADMIN"), unidadeController_1.updateUnidade);
 /**
  * @swagger
  * /api/unidades/{id}:
@@ -112,6 +111,6 @@ router.put("/:id", unidadeController_1.updateUnidade);
  *       404:
  *         description: Unidade nao encontrada
  */
-router.delete("/:id", unidadeController_1.deleteUnidade);
+router.delete("/:id", (0, authorize_1.authorize)("ADMIN"), unidadeController_1.deleteUnidade);
 exports.default = router;
 //# sourceMappingURL=unidadeRoutes.js.map

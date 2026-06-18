@@ -155,8 +155,8 @@ export function AgendasPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteMutation.mutateAsync(deleteTarget.id_agenda);
-      toast.success('Agenda removida.');
+      const result = await deleteMutation.mutateAsync(deleteTarget.id_agenda);
+      toast.success(result.message);
       setDeleteTarget(null);
     } catch (err: any) {
       toast.error(err?.response?.data?.error ?? 'Erro ao remover agenda.');

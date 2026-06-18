@@ -6,7 +6,7 @@ const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const router = (0, express_1.Router)();
 router.use(auth_1.authMiddleware);
-router.post("/", (0, authorize_1.authorize)("ADMIN"), usuarioController_1.createUsuario);
+router.post("/", (0, authorize_1.authorize)("ADMIN", "RECEPCIONISTA"), usuarioController_1.createUsuario);
 /**
  * @swagger
  * /api/usuarios:

@@ -15,12 +15,13 @@ const createUsuario = async (req, res) => {
                 .status(400)
                 .json({ error: "Dados obrigatórios não informados" });
         }
+        if (perfil && perfil !== "PACIENTE" && requester?.perfil !== "ADMIN") {
+            return res.status(403).json({ error: "Sem permissão para criar usuário com este perfil" });
+        }
         const existente = await usuarioModel_1.default.findOne({ where: { cpf } });
         if (existente)
             return res.status(400).json({ error: "CPF já cadastrado" });
         const senhaHash = await (0, password_1.hashPassword)(senha);
-        console.log("Senha original:", senha);
-        console.log("Senha hash:", senhaHash);
         const perfilFinal = requester?.perfil === "ADMIN" && perfil
             ? perfil
             : "PACIENTE";

@@ -7,6 +7,7 @@ exports.authenticateLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sequelize_1 = require("sequelize");
 const usuarioModel_1 = __importDefault(require("../models/usuarioModel"));
+const pacienteModel_1 = __importDefault(require("../models/pacienteModel"));
 const password_1 = require("../utils/password");
 const authenticateLogin = async (identificador, senha) => {
     const usuario = await usuarioModel_1.default.findOne({
@@ -31,7 +32,25 @@ const authenticateLogin = async (identificador, senha) => {
     };
     const token = jsonwebtoken_1.default.sign({ id_usuario: usuario.get("id_usuario"), perfil: usuario.get("perfil") }, secret, signOptions);
     const { senha: _senha, ...usuarioSemSenha } = usuario.toJSON();
-    return { token, usuario: usuarioSemSenha };
+    let id_paciente;
+    if (usuario.get("perfil") === "PACIENTE") {
+        try {
+            const paciente = await pacienteModel_1.default.findOne({
+                where: { id_usuario: usuario.get("id_usuario") },
+                attributes: ["id_paciente"],
+            });
+            if (paciente) {
+                id_paciente = Number(paciente.get("id_paciente"));
+            }
+        }
+        catch {
+            // id_paciente permanece undefined quando o lookup falhar
+        }
+    }
+    return {
+        token,
+        usuario: id_paciente !== undefined ? { ...usuarioSemSenha, id_paciente } : usuarioSemSenha,
+    };
 };
 exports.authenticateLogin = authenticateLogin;
 //# sourceMappingURL=authService.js.map
