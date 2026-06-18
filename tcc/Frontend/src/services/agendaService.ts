@@ -8,7 +8,11 @@ export interface CreateAgendaInput {
   horario_inicio: string;
   horario_fim: string;
   duracao_consulta: number;
-  vagas_disponiveis: number;
+}
+
+export interface CreateAgendaResult {
+  agenda: Agenda;
+  horariosGerados: number;
 }
 
 export async function getAgendas(): Promise<Agenda[]> {
@@ -16,8 +20,8 @@ export async function getAgendas(): Promise<Agenda[]> {
   return data;
 }
 
-export async function createAgenda(input: CreateAgendaInput): Promise<Agenda> {
-  const { data } = await api.post<Agenda>('/agendas', input);
+export async function createAgenda(input: CreateAgendaInput): Promise<CreateAgendaResult> {
+  const { data } = await api.post<CreateAgendaResult>('/agendas', input);
   return data;
 }
 

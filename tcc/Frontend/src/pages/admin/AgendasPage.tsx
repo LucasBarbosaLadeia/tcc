@@ -27,6 +27,18 @@ function toDatetimeStr(timeStr: string): string {
   return `1970-01-01T${timeStr}:00.000Z`;
 }
 
+// Calcula a quantidade de horários que serão/foram gerados
+function calcHorarios(a: Agenda): number {
+  const s = new Date(a.horario_inicio);
+  const e = new Date(a.horario_fim);
+  const min =
+    (e.getUTCHours() * 60 + e.getUTCMinutes()) -
+    (s.getUTCHours() * 60 + s.getUTCMinutes());
+  return min > 0 && a.duracao_consulta > 0
+    ? Math.floor(min / a.duracao_consulta)
+    : (a.vagas_disponiveis ?? 0);
+}
+
 const emptyForm = {
   id_profissional: 0,
   id_unidade: 0,
@@ -34,7 +46,6 @@ const emptyForm = {
   horario_inicio: '08:00',
   horario_fim: '17:00',
   duracao_consulta: 30,
-  vagas_disponiveis: 10,
 };
 
 export function AgendasPage() {
@@ -64,11 +75,20 @@ export function AgendasPage() {
     );
   });
 
+  const numericKeys = ['id_profissional', 'id_unidade', 'duracao_consulta'];
+
   const setF = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: ['id_profissional', 'id_unidade', 'duracao_consulta', 'vagas_disponiveis'].includes(k) ? Number(e.target.value) : e.target.value }));
+    setForm((f) => ({ ...f, [k]: numericKeys.includes(k) ? Number(e.target.value) : e.target.value }));
 
   const setEF = (k: keyof typeof editForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setEditForm((f) => ({ ...f, [k]: k === 'ativo' ? (e.target as HTMLInputElement).checked : ['id_profissional', 'id_unidade', 'duracao_consulta', 'vagas_disponiveis'].includes(k) ? Number(e.target.value) : e.target.value }));
+    setEditForm((f) => ({
+      ...f,
+      [k]: k === 'ativo'
+        ? (e.target as HTMLInputElement).checked
+        : numericKeys.includes(k)
+          ? Number(e.target.value)
+          : e.target.value,
+    }));
 
   const handleCreate = async () => {
     if (!form.id_profissional || !form.id_unidade || !form.dia_semana || !form.horario_inicio || !form.horario_fim) {
@@ -76,16 +96,20 @@ export function AgendasPage() {
       return;
     }
     try {
-      await createMutation.mutateAsync({
+      const result = await createMutation.mutateAsync({
         id_profissional: form.id_profissional,
         id_unidade: form.id_unidade,
         dia_semana: form.dia_semana,
         horario_inicio: toDatetimeStr(form.horario_inicio),
         horario_fim: toDatetimeStr(form.horario_fim),
         duracao_consulta: form.duracao_consulta,
-        vagas_disponiveis: form.vagas_disponiveis,
       });
-      toast.success('Agenda criada!');
+      const count = result.horariosGerados ?? 0;
+      toast.success(
+        count > 0
+          ? `Agenda criada! ${count} horários foram criados automaticamente.`
+          : 'Agenda criada!',
+      );
       setShowCreate(false);
       setForm({ ...emptyForm });
     } catch (err: any) {
@@ -102,7 +126,6 @@ export function AgendasPage() {
       horario_inicio: toTime(a.horario_inicio),
       horario_fim: toTime(a.horario_fim),
       duracao_consulta: a.duracao_consulta,
-      vagas_disponiveis: a.vagas_disponiveis,
       ativo: a.ativo !== false,
     });
   };
@@ -119,7 +142,6 @@ export function AgendasPage() {
           horario_inicio: toDatetimeStr(editForm.horario_inicio),
           horario_fim: toDatetimeStr(editForm.horario_fim),
           duracao_consulta: editForm.duracao_consulta,
-          vagas_disponiveis: editForm.vagas_disponiveis,
           ativo: editForm.ativo,
         },
       });
@@ -168,16 +190,22 @@ export function AgendasPage() {
           <input className={inputCls} type="time" value={values.horario_fim} onChange={onChange('horario_fim')} />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Duração (min) *</label>
-          <input className={inputCls} type="number" min={5} step={5} value={values.duracao_consulta} onChange={onChange('duracao_consulta')} />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Vagas *</label>
-          <input className={inputCls} type="number" min={1} value={values.vagas_disponiveis} onChange={onChange('vagas_disponiveis')} />
-        </div>
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">Duração da consulta (min) *</label>
+        <input className={inputCls} type="number" min={5} step={5} value={values.duracao_consulta} onChange={onChange('duracao_consulta')} />
       </div>
+      {/* Prévia da quantidade de horários que serão gerados */}
+      {values.horario_inicio && values.horario_fim && values.duracao_consulta > 0 && (() => {
+        const [sh, sm] = values.horario_inicio.split(':').map(Number);
+        const [eh, em] = values.horario_fim.split(':').map(Number);
+        const total = (eh * 60 + em) - (sh * 60 + sm);
+        const count = total > 0 ? Math.floor(total / values.duracao_consulta) : 0;
+        return count > 0 ? (
+          <p className="text-xs text-teal-700 bg-teal-50 rounded-lg px-3 py-2">
+            {count} horário{count !== 1 ? 's' : ''} serão criados automaticamente.
+          </p>
+        ) : null;
+      })()}
     </div>
   );
 
@@ -221,7 +249,7 @@ export function AgendasPage() {
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Dia</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Horário</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Duração</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Vagas</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Horários</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                 <th className="px-5 py-3.5" />
               </tr>
@@ -245,7 +273,11 @@ export function AgendasPage() {
                     {toTime(a.horario_inicio)} – {toTime(a.horario_fim)}
                   </td>
                   <td className="px-5 py-3.5 text-gray-600 hidden md:table-cell">{a.duracao_consulta} min</td>
-                  <td className="px-5 py-3.5 text-gray-600 hidden lg:table-cell">{a.vagas_disponiveis}</td>
+                  <td className="px-5 py-3.5 text-gray-600 hidden lg:table-cell">
+                    <span className="inline-flex items-center gap-1 text-teal-700 font-medium">
+                      {calcHorarios(a)}
+                    </span>
+                  </td>
                   <td className="px-5 py-3.5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${a.ativo !== false ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {a.ativo !== false ? 'Ativo' : 'Inativo'}

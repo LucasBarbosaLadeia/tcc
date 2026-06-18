@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createAgenda, deleteAgenda, getAgendas, updateAgenda, type CreateAgendaInput } from '@/services/agendaService';
+import {
+  createAgenda,
+  deleteAgenda,
+  getAgendas,
+  updateAgenda,
+  type CreateAgendaInput,
+} from '@/services/agendaService';
 
 export function useAgendas() {
   return useQuery({
@@ -12,7 +18,10 @@ export function useCreateAgenda() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateAgendaInput) => createAgenda(input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['agendas'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['agendas'] });
+      qc.invalidateQueries({ queryKey: ['horarios'] });
+    },
   });
 }
 
