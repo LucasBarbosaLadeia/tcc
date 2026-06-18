@@ -24,12 +24,17 @@ const loginOk    = new Rate('recep_login_ok');
 const writeOk    = new Rate('recep_write_ok');
 const flowErrors = new Rate('recep_flow_errors');
 
-export const options = {
+const SMOKE = { stages: [{ duration: '1m', target: 5 }] };
+const LOAD  = {
   stages: [
     { duration: '1m', target: 50 },
     { duration: '3m', target: 50 },
     { duration: '1m', target: 0  },
   ],
+};
+
+export const options = {
+  ...(__ENV.TEST_TYPE === 'smoke' ? SMOKE : LOAD),
   thresholds: {
     ...DEFAULT_THRESHOLDS,
     recep_login_ok:    ['rate>0.99'],

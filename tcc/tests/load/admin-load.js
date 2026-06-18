@@ -22,12 +22,17 @@ const loginOk    = new Rate('admin_login_ok');
 const flowErrors = new Rate('admin_flow_errors');
 const endToEnd   = new Trend('admin_end_to_end_ms', true);
 
-export const options = {
+const SMOKE = { stages: [{ duration: '1m', target: 5 }] };
+const LOAD  = {
   stages: [
     { duration: '1m', target: 50 },
     { duration: '3m', target: 50 },
     { duration: '1m', target: 0  },
   ],
+};
+
+export const options = {
+  ...(__ENV.TEST_TYPE === 'smoke' ? SMOKE : LOAD),
   thresholds: {
     ...DEFAULT_THRESHOLDS,
     admin_login_ok:    ['rate>0.99'],

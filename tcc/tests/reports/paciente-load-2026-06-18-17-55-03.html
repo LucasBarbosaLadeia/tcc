@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paciente Load Test</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#1a202c}
+.header{background:linear-gradient(135deg,#1a73e8,#0d5dbf);color:#fff;padding:28px 40px}
+.header h1{font-size:22px;font-weight:700}
+.header p{opacity:.8;margin-top:6px;font-size:13px}
+.body{padding:28px 40px;max-width:1100px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#718096;font-weight:600}
+.card .val{font-size:26px;font-weight:700;margin-top:8px}
+.ok .val{color:#0d9488}.warn .val{color:#d97706}.err .val{color:#dc2626}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+thead th{background:#f8fafc;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#4a5568;padding:12px 16px;text-align:left;border-bottom:2px solid #e2e8f0}
+tbody td{padding:10px 16px;border-bottom:1px solid #f0f4f8;font-size:13px;font-family:monospace}
+tbody tr:last-child td{border:none}
+tbody tr:hover td{background:#f8fafc}
+h2{font-size:16px;font-weight:600;margin-bottom:12px;color:#2d3748}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Relatorio de Carga — Paciente Load Test</h1>
+  <p>Saude na Mao &middot; Gerado em 06/18/2026, 14:55:03</p>
+</div>
+<div class="body">
+  <div class="cards">
+    <div class="card ok">
+      <div class="lbl">Taxa de Erro</div>
+      <div class="val">0.00%</div>
+    </div>
+    <div class="card ok">
+      <div class="lbl">p95 Duracao</div>
+      <div class="val">158.49ms</div>
+    </div>
+    <div class="card ok">
+      <div class="lbl">Media</div>
+      <div class="val">48.46ms</div>
+    </div>
+    <div class="card ok">
+      <div class="lbl">Requisicoes</div>
+      <div class="val">330</div>
+    </div>
+  </div>
+  <h2>Metricas Detalhadas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Metrica</th><th>Tipo</th><th>Avg / Taxa</th><th>p(95)</th><th>Min</th><th>Max</th>
+      </tr>
+    </thead>
+    <tbody><tr>
+      <td>http_req_receiving</td>
+      <td>trend</td>
+      <td>0.33ms</td>
+      <td>1.04ms</td>
+      <td>0.00ms</td>
+      <td>2.79ms</td>
+    </tr><tr>
+      <td>paciente_flow_errors</td>
+      <td>rate</td>
+      <td>0.00%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>http_req_blocked</td>
+      <td>trend</td>
+      <td>0.12ms</td>
+      <td>0.00ms</td>
+      <td>0.00ms</td>
+      <td>27.88ms</td>
+    </tr><tr>
+      <td>checks</td>
+      <td>rate</td>
+      <td>100.00%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>vus_max</td>
+      <td>gauge</td>
+      <td>5</td>
+      <td>—</td>
+      <td>5.00ms</td>
+      <td>5.00ms</td>
+    </tr><tr>
+      <td>paciente_login_ok</td>
+      <td>rate</td>
+      <td>100.00%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>http_req_duration{expected_response:true}</td>
+      <td>trend</td>
+      <td>48.46ms</td>
+      <td>158.49ms</td>
+      <td>5.38ms</td>
+      <td>233.19ms</td>
+    </tr><tr>
+      <td>http_reqs</td>
+      <td>counter</td>
+      <td>535.50%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>paciente_end_to_end_ms</td>
+      <td>trend</td>
+      <td>1800.16ms</td>
+      <td>1901.20ms</td>
+      <td>1729.00ms</td>
+      <td>1968.00ms</td>
+    </tr><tr>
+      <td>http_req_duration</td>
+      <td>trend</td>
+      <td>48.46ms</td>
+      <td>158.49ms</td>
+      <td>5.38ms</td>
+      <td>233.19ms</td>
+    </tr><tr>
+      <td>http_req_tls_handshaking</td>
+      <td>trend</td>
+      <td>0.00ms</td>
+      <td>0.00ms</td>
+      <td>0.00ms</td>
+      <td>0.00ms</td>
+    </tr><tr>
+      <td>http_req_waiting</td>
+      <td>trend</td>
+      <td>48.02ms</td>
+      <td>157.98ms</td>
+      <td>5.38ms</td>
+      <td>231.36ms</td>
+    </tr><tr>
+      <td>iteration_duration</td>
+      <td>trend</td>
+      <td>2801.24ms</td>
+      <td>2902.02ms</td>
+      <td>2730.91ms</td>
+      <td>2970.48ms</td>
+    </tr><tr>
+      <td>http_req_connecting</td>
+      <td>trend</td>
+      <td>0.02ms</td>
+      <td>0.00ms</td>
+      <td>0.00ms</td>
+      <td>3.04ms</td>
+    </tr><tr>
+      <td>data_sent</td>
+      <td>counter</td>
+      <td>158063.06%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>data_received</td>
+      <td>counter</td>
+      <td>579505.06%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>iterations</td>
+      <td>counter</td>
+      <td>89.25%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>group_duration</td>
+      <td>trend</td>
+      <td>49.31ms</td>
+      <td>159.17ms</td>
+      <td>5.73ms</td>
+      <td>233.19ms</td>
+    </tr><tr>
+      <td>vus</td>
+      <td>gauge</td>
+      <td>2</td>
+      <td>—</td>
+      <td>1.00ms</td>
+      <td>4.00ms</td>
+    </tr><tr>
+      <td>http_req_failed</td>
+      <td>rate</td>
+      <td>0.00%</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr><tr>
+      <td>http_req_sending</td>
+      <td>trend</td>
+      <td>0.10ms</td>
+      <td>1.04ms</td>
+      <td>0.00ms</td>
+      <td>1.50ms</td>
+    </tr></tbody>
+  </table>
+</div>
+</body>
+</html>

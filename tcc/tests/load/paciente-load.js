@@ -21,12 +21,17 @@ const loginOk     = new Rate('paciente_login_ok');
 const flowErrors  = new Rate('paciente_flow_errors');
 const endToEnd    = new Trend('paciente_end_to_end_ms', true);
 
-export const options = {
+const SMOKE = { stages: [{ duration: '1m', target: 5 }] };
+const LOAD  = {
   stages: [
     { duration: '1m', target: 50 },
     { duration: '3m', target: 50 },
     { duration: '1m', target: 0  },
   ],
+};
+
+export const options = {
+  ...(__ENV.TEST_TYPE === 'smoke' ? SMOKE : LOAD),
   thresholds: {
     ...DEFAULT_THRESHOLDS,
     paciente_login_ok:    ['rate>0.99'],
