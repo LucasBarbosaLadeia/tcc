@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import Agendamento from "../models/agendamentoModel";
 import Horario from "../models/horarioModel";
+import Agenda from "../models/agendaModel";
+import Profissional from "../models/profissionalModel";
 import Paciente from "../models/pacienteModel";
 
 const generateCodigo = () => {
@@ -84,11 +86,32 @@ export const getAllAgendamentos = async (_req: Request, res: Response) => {
     const horarios = horarioIds.length
       ? await Horario.findAll({ where: { id_horario: horarioIds } })
       : [];
-    const horarioMap = new Map(
-      horarios.map((h) => [
-        h.get("id_horario") as number,
-        { data_hora_inicio: h.get("data_hora_inicio"), data_hora_fim: h.get("data_hora_fim") },
+
+    const agendaIds = Array.from(new Set<number>(
+      horarios.map((h) => h.get("id_agenda") as number).filter((id) => typeof id === "number" && !isNaN(id)),
+    ));
+    const agendas = agendaIds.length ? await Agenda.findAll({ where: { id_agenda: agendaIds } }) : [];
+    const agendaMap = new Map(agendas.map((a) => [a.get("id_agenda") as number, a.get("id_profissional") as number]));
+
+    const profissionalIds = Array.from(new Set<number>(agendas.map((a) => a.get("id_profissional") as number).filter(Boolean)));
+    const profissionais = profissionalIds.length ? await Profissional.findAll({ where: { id_profissional: profissionalIds } }) : [];
+    const profissionalMap = new Map(
+      profissionais.map((p) => [
+        p.get("id_profissional") as number,
+        { nome_completo: p.get("nome_completo") as string, tipo_registro: p.get("tipo_registro") as string },
       ]),
+    );
+
+    const horarioMap = new Map(
+      horarios.map((h) => {
+        const idAgenda = h.get("id_agenda") as number;
+        const idProf = agendaMap.get(idAgenda);
+        const profissional = idProf ? (profissionalMap.get(idProf) ?? null) : null;
+        return [
+          h.get("id_horario") as number,
+          { data_hora_inicio: h.get("data_hora_inicio"), data_hora_fim: h.get("data_hora_fim"), profissional },
+        ];
+      }),
     );
 
     const result = items.map((a) => ({

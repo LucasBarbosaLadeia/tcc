@@ -4,6 +4,7 @@ import {
   confirmarPresenca,
   createAgendamento,
   getAgendamentos,
+  registrarFalta,
   type CreateAgendamentoInput,
 } from '@/services/agendamentoService';
 
@@ -35,6 +36,14 @@ export function useConfirmarPresenca() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => confirmarPresenca(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['agendamentos'] }),
+  });
+}
+
+export function useRegistrarFalta() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => registrarFalta(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['agendamentos'] }),
   });
 }

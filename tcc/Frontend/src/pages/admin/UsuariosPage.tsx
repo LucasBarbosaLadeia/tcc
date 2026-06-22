@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useUsuarios, useCreateUsuario, useUpdateUsuario, useDeleteUsuario, type UsuarioAPI } from '@/hooks/useUsuarios';
+import { isValidCPF, formatCPF } from '@/utils/cpf';
 
 const PERFIL_BADGE: Record<string, string> = {
   ADMIN:         'bg-purple-50 text-purple-700',
@@ -41,12 +42,19 @@ export function UsuariosPage() {
   const setCF = (k: keyof typeof createForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setCreateForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const handleCreateCpfChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setCreateForm((f) => ({ ...f, cpf: formatCPF(e.target.value) }));
+
   const setEF = (k: keyof typeof editForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setEditForm((f) => ({ ...f, [k]: k === 'ativo' ? (e.target as HTMLInputElement).checked : e.target.value }));
 
   const handleCreate = async () => {
     if (!createForm.nome || !createForm.email || !createForm.cpf || !createForm.senha) {
       toast.error('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    if (!isValidCPF(createForm.cpf)) {
+      toast.error('CPF inválido.');
       return;
     }
     try {
@@ -84,8 +92,8 @@ export function UsuariosPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteMutation.mutateAsync(deleteTarget.id_usuario);
-      toast.success('Usuário removido.');
+      const result = await deleteMutation.mutateAsync(deleteTarget.id_usuario);
+      toast.success(result.message);
       setDeleteTarget(null);
     } catch (err: any) {
       toast.error(err?.response?.data?.error ?? 'Erro ao remover usuário.');
@@ -161,7 +169,7 @@ export function UsuariosPage() {
                 <tr key={u.id_usuario} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-gray-800">{u.nome}</td>
                   <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell text-xs">{u.email}</td>
-                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell font-mono text-xs">{u.cpf}</td>
+                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell font-mono text-xs">{formatCPF(u.cpf)}</td>
                   <td className="px-5 py-3.5">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${PERFIL_BADGE[u.perfil] ?? 'bg-gray-100 text-gray-600'}`}>
                       {u.perfil}
@@ -201,7 +209,7 @@ export function UsuariosPage() {
               <input className={inputCls} placeholder="Nome completo *" value={createForm.nome} onChange={setCF('nome')} />
               <input className={inputCls} placeholder="E-mail *" type="email" value={createForm.email} onChange={setCF('email')} />
               <div className="grid grid-cols-2 gap-3">
-                <input className={inputCls} placeholder="CPF (só números) *" value={createForm.cpf} onChange={setCF('cpf')} maxLength={14} />
+                <input className={inputCls} placeholder="CPF *" value={createForm.cpf} onChange={handleCreateCpfChange} maxLength={14} />
                 <input className={inputCls} placeholder="Senha *" type="password" value={createForm.senha} onChange={setCF('senha')} />
               </div>
               <select className={inputCls} value={createForm.perfil} onChange={setCF('perfil')}>

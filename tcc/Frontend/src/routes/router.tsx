@@ -21,6 +21,7 @@ import { NovoAgendamentoPage } from "@/pages/paciente/NovoAgendamentoPage";
 import { DashboardPage as RecepcionistaDashboardPage } from "@/pages/recepcionista/DashboardPage";
 import { PacientesPage as RecepcionistaPacientesPage } from "@/pages/recepcionista/PacientesPage";
 import { AgendamentosPage as RecepcionistaAgendamentosPage } from "@/pages/recepcionista/AgendamentosPage";
+import { NovoAgendamentoPage as RecepcionistaNovoAgendamentoPage } from "@/pages/recepcionista/NovoAgendamentoPage";
 import { DashboardPage as AdminDashboardPage } from "@/pages/admin/DashboardPage";
 import { UsuariosPage } from "@/pages/admin/UsuariosPage";
 import { PacientesPage as AdminPacientesPage } from "@/pages/admin/PacientesPage";
@@ -55,10 +56,8 @@ export const router = createBrowserRouter(
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<RecepcionistaDashboardPage />} />
             <Route path="pacientes" element={<RecepcionistaPacientesPage />} />
-            <Route
-              path="agendamentos"
-              element={<RecepcionistaAgendamentosPage />}
-            />
+            <Route path="agendamentos" element={<RecepcionistaAgendamentosPage />} />
+            <Route path="agendamentos/novo" element={<RecepcionistaNovoAgendamentoPage />} />
             <Route path="agendas" element={<AgendasPage />} />
           </Route>
         </Route>

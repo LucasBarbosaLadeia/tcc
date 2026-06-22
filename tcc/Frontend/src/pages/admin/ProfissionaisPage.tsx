@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useProfissionais, useCreateProfissional, useDeleteProfissional } from '@/hooks/useProfissionais';
+import { isValidCPF, formatCPF, formatPhone } from '@/utils/cpf';
 import { useEspecialidades } from '@/hooks/useEspecialidades';
 import { useUnidades } from '@/hooks/useUnidades';
 
@@ -35,9 +36,19 @@ export function ProfissionaisPage() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [k]: k === 'id_especialidade' || k === 'id_unidade' ? Number(e.target.value) : e.target.value }));
 
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, cpf: formatCPF(e.target.value) }));
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, telefone: formatPhone(e.target.value) }));
+
   const handleSubmit = async () => {
     if (!form.nome_completo || !form.cpf || !form.registro_profissional || !form.tipo_registro || !form.id_especialidade || !form.id_unidade || !form.telefone) {
       toast.error('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    if (!isValidCPF(form.cpf)) {
+      toast.error('CPF inválido.');
       return;
     }
     try {
@@ -116,7 +127,7 @@ export function ProfissionaisPage() {
                 <tr key={p.id_profissional} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-gray-800">{p.nome_completo}</td>
                   <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell font-mono text-xs">{p.registro_profissional}</td>
-                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{p.telefone || '—'}</td>
+                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{p.telefone ? formatPhone(p.telefone) : '—'}</td>
                   <td className="px-5 py-3.5">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.ativo ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {p.ativo ? 'Ativo' : 'Inativo'}
@@ -183,8 +194,8 @@ export function ProfissionaisPage() {
             <div className="space-y-3">
               <input className={inputCls} placeholder="Nome completo *" value={form.nome_completo} onChange={setField('nome_completo')} />
               <div className="grid grid-cols-2 gap-3">
-                <input className={inputCls} placeholder="CPF (só números) *" value={form.cpf} onChange={setField('cpf')} maxLength={14} />
-                <input className={inputCls} placeholder="Telefone *" value={form.telefone} onChange={setField('telefone')} />
+                <input className={inputCls} placeholder="CPF *" value={form.cpf} onChange={handleCpfChange} maxLength={14} />
+                <input className={inputCls} placeholder="Telefone *" value={form.telefone} onChange={handlePhoneChange} maxLength={15} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <select className={inputCls} value={form.tipo_registro} onChange={setField('tipo_registro')}>

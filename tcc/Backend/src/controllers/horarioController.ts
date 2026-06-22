@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Horario from "../models/horarioModel";
+import Agenda from "../models/agendaModel";
+import Profissional from "../models/profissionalModel";
 import { Op } from "sequelize";
 
 export const createHorario = async (req: Request, res: Response) => {
@@ -24,14 +26,35 @@ export const createHorario = async (req: Request, res: Response) => {
 
 export const getAllHorarios = async (_req: Request, res: Response) => {
   try {
-    // apenas mostra os horários que estão disponíveis e no futuro (filtro tipo vw_disponibilidade)
     const items = await Horario.findAll({
       where: {
         status: "Disponível",
-        data_hora_inicio: { [Op.gt]: new Date() }
-      }
+        data_hora_inicio: { [Op.gt]: new Date() },
+      },
     });
-    return res.status(200).json(items);
+
+    const agendaIds = Array.from(new Set<number>(items.map((h) => h.get("id_agenda") as number).filter(Boolean)));
+    const agendas = agendaIds.length ? await Agenda.findAll({ where: { id_agenda: agendaIds } }) : [];
+    const agendaMap = new Map(agendas.map((a) => [a.get("id_agenda") as number, a.get("id_profissional") as number]));
+
+    const profissionalIds = Array.from(new Set<number>(agendas.map((a) => a.get("id_profissional") as number).filter(Boolean)));
+    const profissionais = profissionalIds.length ? await Profissional.findAll({ where: { id_profissional: profissionalIds } }) : [];
+    const profissionalMap = new Map(
+      profissionais.map((p) => [
+        p.get("id_profissional") as number,
+        { nome_completo: p.get("nome_completo") as string, tipo_registro: p.get("tipo_registro") as string },
+      ]),
+    );
+
+    const result = items.map((h) => {
+      const idProf = agendaMap.get(h.get("id_agenda") as number);
+      return {
+        ...(h.toJSON?.() ?? {}),
+        profissional: idProf ? (profissionalMap.get(idProf) ?? null) : null,
+      };
+    });
+
+    return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar horários", details: error });
   }

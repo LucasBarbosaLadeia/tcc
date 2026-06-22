@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useUnidades, useCreateUnidade, useDeleteUnidade } from '@/hooks/useUnidades';
+import { formatPhone } from '@/utils/cpf';
 
 const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400';
 
@@ -39,6 +40,9 @@ export function UnidadesPage() {
   const setField = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, telefone: formatPhone(e.target.value) }));
 
   const handleSubmit = async () => {
     if (!form.nome || !form.tipo || !form.telefone || !form.logradouro || !form.numero || !form.bairro) {
@@ -128,7 +132,7 @@ export function UnidadesPage() {
                       {u.tipo ?? '—'}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{u.telefone || '—'}</td>
+                  <td className="px-5 py-3.5 text-gray-500 hidden md:table-cell">{u.telefone ? formatPhone(u.telefone) : '—'}</td>
                   <td className="px-5 py-3.5 text-gray-500 hidden lg:table-cell">{u.bairro || '—'}</td>
                   <td className="px-5 py-3.5">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${u.ativo !== false ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -199,7 +203,7 @@ export function UnidadesPage() {
                 <select className={inputCls} value={form.tipo} onChange={setField('tipo')}>
                   {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <input className={inputCls} placeholder="Telefone *" value={form.telefone} onChange={setField('telefone')} />
+                <input className={inputCls} placeholder="Telefone *" value={form.telefone} onChange={handlePhoneChange} maxLength={15} />
               </div>
               <input className={inputCls} placeholder="Logradouro *" value={form.logradouro} onChange={setField('logradouro')} />
               <div className="grid grid-cols-2 gap-3">

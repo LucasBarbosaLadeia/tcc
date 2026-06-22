@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Calendar, Plus, Search, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Plus, Search, Stethoscope, User, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useAgendamentos, useCancelAgendamento, useConfirmarPresenca, useCreateAgendamento } from '@/hooks/useAgendamentos';
+import { useAgendamentos, useCancelAgendamento, useConfirmarPresenca, useRegistrarFalta } from '@/hooks/useAgendamentos';
 import { useAllPacientes } from '@/hooks/usePaciente';
-import { useHorarios } from '@/hooks/useHorarios';
-import type { AgendamentoStatus } from '@/types/agendamento';
+import type { Agendamento, AgendamentoStatus } from '@/types/agendamento';
+import type { Paciente } from '@/types/paciente';
+import { formatCPF, formatPhone } from '@/utils/cpf';
 
 const STATUS_BADGE: Record<AgendamentoStatus, string> = {
   Agendado:    'bg-blue-50 text-blue-700',
@@ -18,8 +20,6 @@ const STATUS_BADGE: Record<AgendamentoStatus, string> = {
 
 const STATUS_OPTIONS: AgendamentoStatus[] = ['Agendado', 'Realizada', 'Concluído', 'Cancelado', 'Falta'];
 
-const selectCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400';
-
 function formatDataHora(iso?: string | null) {
   if (!iso) return '—';
   return new Date(iso).toLocaleString('pt-BR', {
@@ -29,21 +29,19 @@ function formatDataHora(iso?: string | null) {
 }
 
 export function AgendamentosPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<AgendamentoStatus | 'Todos'>('Todos');
   const [cancelId, setCancelId] = useState<number | null>(null);
   const [motivo, setMotivo] = useState('');
-  const [showNovoModal, setShowNovoModal] = useState(false);
-  const [novoForm, setNovoForm] = useState({ id_paciente: 0, id_horario: 0 });
-  const [pacienteSearch, setPacienteSearch] = useState('');
-  const [pacienteSelecionado, setPacienteSelecionado] = useState<{ id: number; nome: string } | null>(null);
+  const [pacienteModal, setPacienteModal] = useState<Paciente | null>(null);
+  const [detailModal, setDetailModal] = useState<Agendamento | null>(null);
 
   const { data: agendamentos, isLoading, error } = useAgendamentos();
   const cancelMutation = useCancelAgendamento();
   const confirmarMutation = useConfirmarPresenca();
-  const createMutation = useCreateAgendamento();
+  const faltaMutation = useRegistrarFalta();
   const { data: pacientes } = useAllPacientes();
-  const { data: horarios } = useHorarios();
 
   const filtered = (agendamentos ?? []).filter((a) => {
     const matchStatus = statusFilter === 'Todos' || a.status === statusFilter;
@@ -65,23 +63,6 @@ export function AgendamentosPage() {
     }
   };
 
-  const handleNovoAgendamento = async () => {
-    if (!novoForm.id_paciente || !novoForm.id_horario) {
-      toast.error('Selecione o paciente e o horário.');
-      return;
-    }
-    try {
-      await createMutation.mutateAsync({ id_paciente: novoForm.id_paciente, id_horario: novoForm.id_horario });
-      toast.success('Agendamento criado com sucesso!');
-      setShowNovoModal(false);
-      setNovoForm({ id_paciente: 0, id_horario: 0 });
-      setPacienteSearch('');
-      setPacienteSelecionado(null);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error ?? 'Erro ao criar agendamento.');
-    }
-  };
-
   return (
     <div>
       <PageHeader
@@ -89,7 +70,7 @@ export function AgendamentosPage() {
         description="Gerencie os agendamentos de consultas."
         action={
           <button
-            onClick={() => setShowNovoModal(true)}
+            onClick={() => navigate('/recepcionista/agendamentos/novo')}
             className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition-colors"
           >
             <Plus size={15} />
@@ -129,7 +110,7 @@ export function AgendamentosPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">Código</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Paciente (ID)</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Paciente</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell whitespace-nowrap">Data / Hora</th>
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                 <th className="px-5 py-3.5" />
@@ -149,10 +130,25 @@ export function AgendamentosPage() {
               ) : filtered.map((agd) => (
                 <tr key={agd.id_agendamento} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5">
-                    <span className="font-mono text-xs text-gray-600">{agd.codigo_agendamento}</span>
+                    <button
+                      onClick={() => setDetailModal(agd)}
+                      className="font-mono text-xs text-teal-600 hover:text-teal-800 hover:underline transition-colors text-left"
+                    >
+                      {agd.codigo_agendamento}
+                    </button>
                   </td>
-                  <td className="px-5 py-3.5 hidden sm:table-cell text-gray-500 text-xs">
-                    #{agd.id_paciente}
+                  <td className="px-5 py-3.5 hidden sm:table-cell">
+                    {(() => {
+                      const p = pacientes?.find(p => p.id_paciente === agd.id_paciente);
+                      return p ? (
+                        <button
+                          onClick={() => setPacienteModal(p)}
+                          className="text-teal-600 hover:text-teal-800 font-medium text-sm hover:underline text-left"
+                        >
+                          {p.nome_completo}
+                        </button>
+                      ) : '—';
+                    })()}
                   </td>
                   <td className="px-5 py-3.5 hidden md:table-cell text-gray-600 whitespace-nowrap">
                     {formatDataHora(agd.horario?.data_hora_inicio)}
@@ -164,7 +160,7 @@ export function AgendamentosPage() {
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     {agd.status === 'Agendado' && (
-                      <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={async () => {
                             try {
@@ -175,13 +171,27 @@ export function AgendamentosPage() {
                             }
                           }}
                           disabled={confirmarMutation.isPending}
-                          className="text-xs text-teal-600 hover:text-teal-800 font-medium transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-50"
                         >
-                          Confirmar presença
+                          Confirmar
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await faltaMutation.mutateAsync(agd.id_agendamento);
+                              toast.success('Falta registrada.');
+                            } catch {
+                              toast.error('Erro ao registrar falta.');
+                            }
+                          }}
+                          disabled={faltaMutation.isPending}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors disabled:opacity-50"
+                        >
+                          Falta
                         </button>
                         <button
                           onClick={() => { setCancelId(agd.id_agendamento); setMotivo(''); }}
-                          className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors"
                         >
                           Cancelar
                         </button>
@@ -195,101 +205,136 @@ export function AgendamentosPage() {
         )}
       </div>
 
-      {/* Modal: Novo Agendamento */}
-      {showNovoModal && (
+      {/* Modal: Ficha do Paciente */}
+      {pacienteModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-base font-bold text-gray-900">Novo Agendamento</h3>
-              <button onClick={() => { setShowNovoModal(false); setPacienteSearch(''); setPacienteSelecionado(null); setNovoForm({ id_paciente: 0, id_horario: 0 }); }} className="text-gray-400 hover:text-gray-600">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                  <User size={18} className="text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">{pacienteModal.nome_completo}</h3>
+                  <p className="text-xs text-gray-400">Ficha do paciente</p>
+                </div>
+              </div>
+              <button onClick={() => setPacienteModal(null)} className="text-gray-400 hover:text-gray-600">
                 <X size={18} />
               </button>
             </div>
-            <div className="space-y-3">
-              <div className="relative">
-                <label className="block text-xs text-gray-500 mb-1">Paciente *</label>
-                {pacienteSelecionado ? (
-                  <div className="flex items-center justify-between w-full border border-teal-400 rounded-lg px-3 py-2 text-sm bg-teal-50">
-                    <span className="text-gray-800 font-medium">{pacienteSelecionado.nome}</span>
-                    <button
-                      type="button"
-                      onClick={() => { setPacienteSelecionado(null); setPacienteSearch(''); setNovoForm((f) => ({ ...f, id_paciente: 0 })); }}
-                      className="text-gray-400 hover:text-gray-600 ml-2"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      type="text"
-                      value={pacienteSearch}
-                      onChange={(e) => setPacienteSearch(e.target.value)}
-                      placeholder="Buscar por nome ou CPF…"
-                      className={selectCls}
-                      autoComplete="off"
-                    />
-                    {pacienteSearch.trim() && (
-                      <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-                        {(pacientes ?? [])
-                          .filter((p) => {
-                            const q = pacienteSearch.toLowerCase();
-                            return p.nome_completo.toLowerCase().includes(q) || p.cpf.includes(q);
-                          })
-                          .map((p) => (
-                            <button
-                              key={p.id_paciente}
-                              type="button"
-                              onClick={() => {
-                                setPacienteSelecionado({ id: p.id_paciente, nome: p.nome_completo });
-                                setNovoForm((f) => ({ ...f, id_paciente: p.id_paciente }));
-                                setPacienteSearch('');
-                              }}
-                              className="w-full text-left px-3 py-2 text-sm hover:bg-teal-50 text-gray-700"
-                            >
-                              <span className="font-medium">{p.nome_completo}</span>
-                              <span className="text-gray-400 ml-2 text-xs">{p.cpf}</span>
-                            </button>
-                          ))}
-                        {(pacientes ?? []).filter((p) => {
-                          const q = pacienteSearch.toLowerCase();
-                          return p.nome_completo.toLowerCase().includes(q) || p.cpf.includes(q);
-                        }).length === 0 && (
-                          <p className="px-3 py-2 text-sm text-gray-400">Nenhum paciente encontrado.</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">CPF</p>
+                  <p className="font-mono text-gray-700">{formatCPF(pacienteModal.cpf)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Telefone</p>
+                  <p className="text-gray-700">{pacienteModal.telefone ? formatPhone(pacienteModal.telefone) : '—'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Nascimento</p>
+                  <p className="text-gray-700">
+                    {pacienteModal.data_nascimento
+                      ? new Date(pacienteModal.data_nascimento + 'T00:00:00').toLocaleDateString('pt-BR')
+                      : '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Sexo</p>
+                  <p className="text-gray-700">
+                    {pacienteModal.sexo === 'M' ? 'Masculino' : pacienteModal.sexo === 'F' ? 'Feminino' : 'Outro'}
+                  </p>
+                </div>
+              </div>
+              {(pacienteModal.logradouro || pacienteModal.bairro) && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Endereço</p>
+                  <p className="text-gray-700">
+                    {[pacienteModal.logradouro, pacienteModal.numero, pacienteModal.bairro, pacienteModal.cidade, pacienteModal.estado].filter(Boolean).join(', ')}
+                    {pacienteModal.cep ? ` — CEP ${pacienteModal.cep}` : ''}
+                  </p>
+                </div>
+              )}
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">Faltas registradas</p>
+                <p className={`font-semibold ${pacienteModal.contador_faltas > 0 ? 'text-red-500' : 'text-green-600'}`}>
+                  {pacienteModal.contador_faltas}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setPacienteModal(null)} className="w-full mt-5 py-2.5 border border-gray-200 text-sm font-semibold text-gray-600 rounded-xl hover:bg-gray-50">
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Detalhes do Agendamento */}
+      {detailModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                  <Stethoscope size={18} className="text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">Detalhes do Agendamento</h3>
+                  <p className="font-mono text-xs text-gray-400">{detailModal.codigo_agendamento}</p>
+                </div>
+              </div>
+              <button onClick={() => setDetailModal(null)} className="text-gray-400 hover:text-gray-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-xs text-gray-400 mb-0.5">Médico(a)</p>
+                <p className="font-medium text-gray-800">
+                  {detailModal.horario?.profissional?.nome_completo ?? '—'}
+                  {detailModal.horario?.profissional?.tipo_registro && (
+                    <span className="ml-2 text-xs text-gray-400 font-normal">({detailModal.horario.profissional.tipo_registro})</span>
+                  )}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Data / Hora</p>
+                  <p className="text-gray-700">{formatDataHora(detailModal.horario?.data_hora_inicio)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Status</p>
+                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[detailModal.status]}`}>
+                    {detailModal.status}
+                  </span>
+                </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Horário disponível *</label>
-                <select
-                  className={selectCls}
-                  value={novoForm.id_horario}
-                  onChange={(e) => setNovoForm((f) => ({ ...f, id_horario: Number(e.target.value) }))}
-                >
-                  <option value={0}>Selecione o horário</option>
-                  {(horarios ?? []).map((h) => (
-                    <option key={h.id_horario} value={h.id_horario}>
-                      {new Date(h.data_hora_inicio).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </option>
-                  ))}
-                </select>
+                <p className="text-xs text-gray-400 mb-0.5">Paciente</p>
+                <p className="text-gray-700">
+                  {pacientes?.find(p => p.id_paciente === detailModal.id_paciente)?.nome_completo ?? `#${detailModal.id_paciente}`}
+                </p>
               </div>
+              {detailModal.observacoes && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Observações</p>
+                  <p className="text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{detailModal.observacoes}</p>
+                </div>
+              )}
+              {detailModal.motivo_cancelamento && (
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Motivo do cancelamento</p>
+                  <p className="text-gray-700 bg-red-50 rounded-lg px-3 py-2">{detailModal.motivo_cancelamento}</p>
+                </div>
+              )}
             </div>
-            <div className="flex gap-3 mt-5">
-              <button onClick={() => { setShowNovoModal(false); setPacienteSearch(''); setPacienteSelecionado(null); setNovoForm({ id_paciente: 0, id_horario: 0 }); }} className="flex-1 py-2.5 border border-gray-200 text-sm font-semibold text-gray-600 rounded-xl hover:bg-gray-50">
-                Cancelar
-              </button>
-              <button
-                onClick={handleNovoAgendamento}
-                disabled={createMutation.isPending}
-                className="flex-1 py-2.5 bg-teal-600 text-white text-sm font-semibold rounded-xl hover:bg-teal-700 disabled:opacity-60"
-              >
-                {createMutation.isPending ? 'Agendando…' : 'Agendar'}
-              </button>
-            </div>
+            <button onClick={() => setDetailModal(null)} className="w-full mt-5 py-2.5 border border-gray-200 text-sm font-semibold text-gray-600 rounded-xl hover:bg-gray-50">
+              Fechar
+            </button>
           </div>
         </div>
       )}

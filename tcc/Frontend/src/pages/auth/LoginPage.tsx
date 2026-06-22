@@ -26,7 +26,10 @@ export function LoginPage() {
   const onSubmit = async (data: LoginSchema) => {
     setLoading(true);
     try {
-      const result = await loginRequest(data.identificador, data.senha);
+      const identificador = data.identificador.includes('@')
+        ? data.identificador
+        : data.identificador.replace(/\D/g, '');
+      const result = await loginRequest(identificador, data.senha);
       storeLogin({ token: result.token, user: result.user, perfil: result.perfil });
       toast.success(`Bem-vindo, ${result.user.nome.split(' ')[0]}!`);
       navigate(getDefaultRouteByPerfil(result.perfil), { replace: true });

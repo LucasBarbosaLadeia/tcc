@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Usuario, { IUsuario, PerfilUsuario } from "../models/usuarioModel";
+import Paciente from "../models/pacienteModel";
+import Agendamento from "../models/agendamentoModel";
 import { hashPassword } from "../utils/password";
 
 export const createUsuario = async (req: Request, res: Response) => {
@@ -124,8 +126,23 @@ export const deleteUsuario = async (req: Request, res: Response) => {
     const item = await Usuario.findByPk(id);
     if (!item) return res.status(404).json({ error: "Usuário não encontrado" });
 
+    const paciente = await Paciente.findOne({ where: { id_usuario: id } });
+
+    if (paciente) {
+      const agendamentoCount = await Agendamento.count({
+        where: { id_paciente: paciente.get("id_paciente") as number },
+      });
+
+      if (agendamentoCount > 0) {
+        await item.update({ ativo: false });
+        return res.status(200).json({ message: "Usuário inativado com sucesso." });
+      }
+
+      await paciente.destroy();
+    }
+
     await item.destroy();
-    return res.status(200).json({ message: "Usuário deletado com sucesso" });
+    return res.status(200).json({ message: "Usuário removido com sucesso." });
   } catch (error) {
     return res
       .status(500)

@@ -34,3 +34,10 @@ export async function confirmarPresenca(id: number): Promise<Agendamento> {
   });
   return data;
 }
+
+export async function registrarFalta(id: number): Promise<Agendamento> {
+  const { data } = await api.put<Agendamento>(`/agendamentos/${id}`, {
+    status: 'Falta',
+  });
+  return data;
+}

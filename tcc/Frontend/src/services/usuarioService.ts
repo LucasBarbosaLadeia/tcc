@@ -40,6 +40,7 @@ export async function updateUsuario(id: number, input: UpdateUsuarioInput): Prom
   return data;
 }
 
-export async function deleteUsuario(id: number): Promise<void> {
-  await api.delete(`/usuarios/${id}`);
+export async function deleteUsuario(id: number): Promise<{ message: string }> {
+  const { data } = await api.delete<{ message: string }>(`/usuarios/${id}`);
+  return data;
 }

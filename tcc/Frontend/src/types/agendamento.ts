@@ -13,5 +13,6 @@ export interface Agendamento {
   horario?: {
     data_hora_inicio: string;
     data_hora_fim: string;
+    profissional?: { nome_completo: string; tipo_registro?: string } | null;
   } | null;
 }
