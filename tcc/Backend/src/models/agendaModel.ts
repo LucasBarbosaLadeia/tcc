@@ -114,6 +114,7 @@ Agenda.init(
     ativo: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
       field: "ativo",
     },
     created_at: {
