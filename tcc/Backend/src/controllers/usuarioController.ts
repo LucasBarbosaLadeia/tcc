@@ -4,6 +4,8 @@ import Paciente from "../models/pacienteModel";
 import Agendamento from "../models/agendamentoModel";
 import { hashPassword } from "../utils/password";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const createUsuario = async (req: Request, res: Response) => {
   try {
     const { nome, email, cpf, senha, perfil } = req.body;
@@ -13,6 +15,11 @@ export const createUsuario = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ error: "Dados obrigatórios não informados" });
+    }
+
+    const emailNorm = (email as string).trim().toLowerCase();
+    if (!EMAIL_REGEX.test(emailNorm)) {
+      return res.status(400).json({ error: "E-mail inválido" });
     }
 
     if (perfil && perfil !== "PACIENTE" && requester?.perfil !== "ADMIN") {
@@ -30,7 +37,7 @@ export const createUsuario = async (req: Request, res: Response) => {
 
     const novo = await Usuario.create({
       nome,
-      email,
+      email: emailNorm,
       cpf,
       senha: senhaHash,
       perfil: perfilFinal,
@@ -99,7 +106,15 @@ export const updateUsuario = async (req: Request, res: Response) => {
         .json({ error: "Paciente não pode alterar perfil" });
     }
 
-    const updates: Partial<IUsuario> = { nome, email, cpf, ativo };
+    let emailNorm: string | undefined;
+    if (email !== undefined) {
+      emailNorm = (email as string).trim().toLowerCase();
+      if (!EMAIL_REGEX.test(emailNorm)) {
+        return res.status(400).json({ error: "E-mail inválido" });
+      }
+    }
+
+    const updates: Partial<IUsuario> = { nome, email: emailNorm, cpf, ativo };
     if (perfil) {
       updates.perfil = perfil as PerfilUsuario;
     }

@@ -3,3 +3,6 @@
 .node_modules
 ./Backend/node_modules
 ./Backend/package-lock.json
+.env.e2e
+test-results/
+tests/reports/

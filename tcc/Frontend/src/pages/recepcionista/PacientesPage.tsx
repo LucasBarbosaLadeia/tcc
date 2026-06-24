@@ -15,6 +15,8 @@ function formatDate(iso?: string) {
 
 const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400';
 
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
 function FaltasBadge({ count }: { count: number }) {
   if (count === 0) return <span className="text-xs font-semibold text-green-600">0</span>;
   if (count <= 2) return (
@@ -59,6 +61,10 @@ export function PacientesPage() {
   const handleSubmit = async () => {
     if (!form.nome || !form.email || !form.cpf || !form.senha || !form.data_nascimento || !form.sexo) {
       toast.error('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    if (!isValidEmail(form.email)) {
+      toast.error('Informe um e-mail válido.');
       return;
     }
     if (!isValidCPF(form.cpf)) {
@@ -287,7 +293,8 @@ export function PacientesPage() {
             <div className="space-y-3">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dados de Acesso</p>
               <input className={inputCls} placeholder="Nome completo *" value={form.nome} onChange={setField('nome')} />
-              <input className={inputCls} placeholder="E-mail *" type="email" value={form.email} onChange={setField('email')} />
+              <input className={inputCls} placeholder="E-mail *" type="email" value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value.replace(/\s+/g, '').toLowerCase() }))} />
               <div className="grid grid-cols-2 gap-3">
                 <input className={inputCls} placeholder="CPF *" value={form.cpf} onChange={handleCpfChange} maxLength={14} />
                 <input className={inputCls} placeholder="Senha *" type="password" value={form.senha} onChange={setField('senha')} />
