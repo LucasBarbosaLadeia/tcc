@@ -1,3 +1,4 @@
 settings.local.json
 launch.json
 Usuarios_Senhas.md
+.env.e2e.example

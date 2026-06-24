@@ -23,12 +23,13 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  const { onChange: identificadorOnChange, ...identificadorProps } = register('identificador');
+
   const onSubmit = async (data: LoginSchema) => {
     setLoading(true);
     try {
-      const identificador = data.identificador.includes('@')
-        ? data.identificador
-        : data.identificador.replace(/\D/g, '');
+      const raw = data.identificador.trim().toLowerCase();
+      const identificador = raw.includes('@') ? raw : raw.replace(/\D/g, '');
       const result = await loginRequest(identificador, data.senha);
       storeLogin({ token: result.token, user: result.user, perfil: result.perfil });
       toast.success(`Bem-vindo, ${result.user.nome.split(' ')[0]}!`);
@@ -68,7 +69,11 @@ export function LoginPage() {
                 type="text"
                 autoComplete="username"
                 placeholder="seu@email.com ou 000.000.000-00"
-                {...register('identificador')}
+                {...identificadorProps}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/\s+/g, '').toLowerCase();
+                  identificadorOnChange(e);
+                }}
                 className={`w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition
                   focus:ring-2 focus:ring-teal-500 focus:border-teal-500
                   ${errors.identificador ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}`}

@@ -110,11 +110,17 @@ Usuario.init(
     },
     hooks: {
       beforeCreate: async (usuario) => {
+        if (usuario.email) {
+          usuario.email = usuario.email.trim().toLowerCase();
+        }
         if (usuario.senha && !isBcryptHash(usuario.senha)) {
           usuario.senha = await hashPassword(usuario.senha);
         }
       },
       beforeUpdate: async (usuario) => {
+        if (usuario.changed("email") && usuario.email) {
+          usuario.email = usuario.email.trim().toLowerCase();
+        }
         if (usuario.changed("senha") && usuario.senha) {
           if (!isBcryptHash(usuario.senha)) {
             usuario.senha = await hashPassword(usuario.senha);

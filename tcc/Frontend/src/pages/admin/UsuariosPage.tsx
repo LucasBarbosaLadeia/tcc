@@ -17,6 +17,8 @@ type Perfil = typeof PERFIS[number];
 
 const inputCls = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400';
 
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
 export function UsuariosPage() {
   const [search, setSearch] = useState('');
   const [perfilFilter, setPerfilFilter] = useState<Perfil | 'Todos'>('Todos');
@@ -53,6 +55,10 @@ export function UsuariosPage() {
       toast.error('Preencha todos os campos obrigatórios.');
       return;
     }
+    if (!isValidEmail(createForm.email)) {
+      toast.error('Informe um e-mail válido.');
+      return;
+    }
     if (!isValidCPF(createForm.cpf)) {
       toast.error('CPF inválido.');
       return;
@@ -80,6 +86,10 @@ export function UsuariosPage() {
 
   const handleUpdate = async () => {
     if (!editTarget) return;
+    if (!isValidEmail(editForm.email)) {
+      toast.error('Informe um e-mail válido.');
+      return;
+    }
     try {
       await updateMutation.mutateAsync({ id: editTarget.id_usuario, input: editForm });
       toast.success('Usuário atualizado!');
@@ -207,7 +217,8 @@ export function UsuariosPage() {
             </div>
             <div className="space-y-3">
               <input className={inputCls} placeholder="Nome completo *" value={createForm.nome} onChange={setCF('nome')} />
-              <input className={inputCls} placeholder="E-mail *" type="email" value={createForm.email} onChange={setCF('email')} />
+              <input className={inputCls} placeholder="E-mail *" type="email" value={createForm.email}
+                onChange={(e) => setCreateForm((f) => ({ ...f, email: e.target.value.replace(/\s+/g, '').toLowerCase() }))} />
               <div className="grid grid-cols-2 gap-3">
                 <input className={inputCls} placeholder="CPF *" value={createForm.cpf} onChange={handleCreateCpfChange} maxLength={14} />
                 <input className={inputCls} placeholder="Senha *" type="password" value={createForm.senha} onChange={setCF('senha')} />
@@ -236,7 +247,8 @@ export function UsuariosPage() {
             </div>
             <div className="space-y-3">
               <input className={inputCls} placeholder="Nome completo" value={editForm.nome} onChange={setEF('nome')} />
-              <input className={inputCls} placeholder="E-mail" type="email" value={editForm.email} onChange={setEF('email')} />
+              <input className={inputCls} placeholder="E-mail" type="email" value={editForm.email}
+                onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value.replace(/\s+/g, '').toLowerCase() }))} />
               <select className={inputCls} value={editForm.perfil} onChange={setEF('perfil')}>
                 {PERFIS.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>

@@ -1,7 +1,9 @@
 {
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@types/jest": "^30.0.0",
     "@types/supertest": "^7.2.0",
+    "dotenv": "^16.4.5",
     "jest": "^30.4.2",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
@@ -11,9 +13,13 @@
   "dependencies": {
     "jsonwebtoken": "^9.0.3"
   },
-"scripts": {
+  "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report tests/reports/e2e"
   }
 }
