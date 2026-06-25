@@ -1,8 +1,19 @@
+# ===== VARIÁVEIS DE AMBIENTE =====
+# Ignorar arquivos reais de ambiente (podem conter senhas)
 .env
+.env.*
+
+# Permitir explicitamente os arquivos de exemplo (sem senhas reais)
+!.env.example
+!.env.*.example
+
+# ===== DEPENDÊNCIAS NODE =====
+node_modules/
+Backend/node_modules/
+Frontend/node_modules/
 .package-lock.json
-.node_modules
-./Backend/node_modules
-./Backend/package-lock.json
-.env.e2e
+
+# ===== OUTPUTS DE TESTES =====
 test-results/
+playwright-report/
 tests/reports/

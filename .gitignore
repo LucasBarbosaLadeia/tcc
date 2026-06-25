@@ -1,4 +1,6 @@
+# IDE e configurações locais
 settings.local.json
 launch.json
+
+# Documento interno sensível — nunca commitar
 Usuarios_Senhas.md
-.env.e2e.example
