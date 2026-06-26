@@ -58,8 +58,9 @@ export function AgendamentosPage() {
       toast.success('Agendamento cancelado.');
       setCancelId(null);
       setMotivo('');
-    } catch {
-      toast.error('Erro ao cancelar agendamento.');
+    } catch (err) {
+      const reason = (err as any)?.response?.data?.error;
+      toast.error(reason ? `Erro ao cancelar agendamento: ${reason}` : 'Erro ao cancelar agendamento.');
     }
   };
 
@@ -166,8 +167,9 @@ export function AgendamentosPage() {
                             try {
                               await confirmarMutation.mutateAsync(agd.id_agendamento);
                               toast.success('Presença confirmada!');
-                            } catch {
-                              toast.error('Erro ao confirmar presença.');
+                            } catch (err) {
+                              const reason = (err as any)?.response?.data?.error;
+                              toast.error(reason ? `Erro ao confirmar presença: ${reason}` : 'Erro ao confirmar presença.');
                             }
                           }}
                           disabled={confirmarMutation.isPending}
@@ -180,8 +182,9 @@ export function AgendamentosPage() {
                             try {
                               await faltaMutation.mutateAsync(agd.id_agendamento);
                               toast.success('Falta registrada.');
-                            } catch {
-                              toast.error('Erro ao registrar falta.');
+                            } catch (err) {
+                              const reason = (err as any)?.response?.data?.error;
+                              toast.error(reason ? `Erro ao registrar falta: ${reason}` : 'Erro ao registrar falta.');
                             }
                           }}
                           disabled={faltaMutation.isPending}

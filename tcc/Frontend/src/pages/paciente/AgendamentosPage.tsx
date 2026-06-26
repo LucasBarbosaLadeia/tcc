@@ -48,8 +48,9 @@ export function AgendamentosPage() {
       toast.success('Agendamento cancelado.');
       setCancelId(null);
       setMotivo('');
-    } catch {
-      toast.error('Erro ao cancelar agendamento.');
+    } catch (err) {
+      const reason = (err as any)?.response?.data?.error;
+      toast.error(reason ? `Erro ao cancelar agendamento: ${reason}` : 'Erro ao cancelar agendamento.');
     }
   };
 

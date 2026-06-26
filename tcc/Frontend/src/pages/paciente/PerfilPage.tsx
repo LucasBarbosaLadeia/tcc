@@ -74,8 +74,9 @@ export function PerfilPage() {
       await updateMutation.mutateAsync(data);
       toast.success('Perfil atualizado com sucesso!');
       setEditMode(false);
-    } catch {
-      toast.error('Erro ao salvar alterações.');
+    } catch (err) {
+      const reason = (err as any)?.response?.data?.error;
+      toast.error(reason ? `Erro ao salvar alterações: ${reason}` : 'Erro ao salvar alterações.');
     }
   };
 

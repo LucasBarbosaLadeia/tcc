@@ -173,8 +173,9 @@ export function UnidadesPage() {
                     await deleteMutation.mutateAsync(deleteId);
                     toast.success('Unidade excluída.');
                     setDeleteId(null);
-                  } catch {
-                    toast.error('Erro ao excluir unidade.');
+                  } catch (err) {
+                    const reason = (err as any)?.response?.data?.error;
+                    toast.error(reason ? `Erro ao excluir unidade: ${reason}` : 'Erro ao excluir unidade.');
                   }
                 }}
                 disabled={deleteMutation.isPending}

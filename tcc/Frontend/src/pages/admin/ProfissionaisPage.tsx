@@ -167,8 +167,9 @@ export function ProfissionaisPage() {
                     await deleteMutation.mutateAsync(deleteId);
                     toast.success('Profissional excluído.');
                     setDeleteId(null);
-                  } catch {
-                    toast.error('Erro ao excluir profissional.');
+                  } catch (err) {
+                    const reason = (err as any)?.response?.data?.error;
+                    toast.error(reason ? `Erro ao excluir profissional: ${reason}` : 'Erro ao excluir profissional.');
                   }
                 }}
                 disabled={deleteMutation.isPending}

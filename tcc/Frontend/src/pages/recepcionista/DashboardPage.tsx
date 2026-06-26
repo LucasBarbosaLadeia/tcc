@@ -112,8 +112,9 @@ export function DashboardPage() {
                           try {
                             await confirmarMutation.mutateAsync(a.id_agendamento);
                             toast.success('Presença confirmada!');
-                          } catch {
-                            toast.error('Erro ao confirmar presença.');
+                          } catch (err) {
+                            const reason = (err as any)?.response?.data?.error;
+                            toast.error(reason ? `Erro ao confirmar presença: ${reason}` : 'Erro ao confirmar presença.');
                           }
                         }}
                         disabled={confirmarMutation.isPending}

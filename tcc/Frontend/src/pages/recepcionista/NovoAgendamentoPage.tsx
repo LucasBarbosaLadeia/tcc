@@ -105,8 +105,9 @@ export function NovoAgendamentoPage() {
       });
       toast.success('Agendamento criado com sucesso!');
       navigate('/recepcionista/agendamentos');
-    } catch {
-      toast.error('Erro ao criar agendamento. Tente novamente.');
+    } catch (err) {
+      const reason = (err as any)?.response?.data?.error;
+      toast.error(reason ? `Erro ao criar agendamento: ${reason}` : 'Erro ao criar agendamento. Tente novamente.');
     }
   };
 
