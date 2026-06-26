@@ -66,6 +66,9 @@ export const authenticateLogin = async (
 
   return {
     token,
-    usuario: id_paciente !== undefined ? { ...usuarioSemSenha, id_paciente } : usuarioSemSenha,
+    usuario:
+      id_paciente !== undefined
+        ? { ...usuarioSemSenha, id_paciente }
+        : usuarioSemSenha,
   };
 };
