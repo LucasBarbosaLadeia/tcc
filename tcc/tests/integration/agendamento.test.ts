@@ -31,7 +31,7 @@ describe("Agendamento Controller (integração)", () => {
     const especialidade = await Especialidade.create({ nome_especialidade: "Cardiologia", ativo: true });
     const unidade = await Unidade.create({ nome: "Unidade Teste", tipo: "UBS", telefone: "0000", logradouro: "Rua Teste", numero: "1", bairro: "Centro", ativo: true });
     const profissional = await Profissional.create({ cpf: "12345678900", registro_profissional: "12345", tipo_registro: "CRM", nome_completo: "Dr. Teste", id_especialidade: especialidade.id_especialidade, id_unidade: unidade.id_unidade, telefone: "99999-9999", ativo: true });
-    const agenda = await Agenda.create({ id_profissional: profissional.id_profissional, id_unidade: unidade.id_unidade, dia_semana: "Segunda-feira", horario_inicio: new Date(Date.now() + 3600 * 1000), horario_fim: new Date(Date.now() + 7200 * 1000), duracao_consulta: 60, vagas_disponiveis: 1, ativo: true });
+    const agenda = await Agenda.create({ id_profissional: profissional.id_profissional, id_unidade: unidade.id_unidade, data: "2027-01-10", horario_inicio: new Date(Date.now() + 3600 * 1000), horario_fim: new Date(Date.now() + 7200 * 1000), duracao_consulta: 60, vagas_disponiveis: 1, ativo: true });
     const horario = await Horario.create({ id_agenda: agenda.id_agenda, data_hora_inicio: new Date(Date.now() + 3600 * 1000), data_hora_fim: new Date(Date.now() + 7200 * 1000), status: "Disponível" });
     return { agenda, horario };
   };

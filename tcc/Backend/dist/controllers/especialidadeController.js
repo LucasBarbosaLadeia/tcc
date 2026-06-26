@@ -13,7 +13,7 @@ const createEspecialidade = async (req, res) => {
         }
         const existente = await especialidadeModel_1.default.findOne({ where: { nome_especialidade } });
         if (existente)
-            return res.status(400).json({ error: "Especialidade já cadastrada" });
+            return res.status(409).json({ error: "Especialidade já cadastrada" });
         const novo = await especialidadeModel_1.default.create({ nome_especialidade, ativo: true });
         return res.status(201).json(novo);
     }
@@ -59,7 +59,7 @@ const updateEspecialidade = async (req, res) => {
         if (nome_especialidade) {
             const existente = await especialidadeModel_1.default.findOne({ where: { nome_especialidade } });
             if (existente && existente.get("id_especialidade") !== id) {
-                return res.status(400).json({ error: "Nome já em uso" });
+                return res.status(409).json({ error: "Nome já em uso" });
             }
         }
         await item.update({ nome_especialidade });

@@ -65,7 +65,7 @@ const testDatabase = async (retries = 10, delayMs = 3000): Promise<void> => {
       }
 
       // Sincronizar modelos
-      await sequelize.sync(); // cuidado com alter: true em produção, pode causar perda de dados
+      await sequelize.sync();
       logger.info("Banco de dados sincronizado!");
       return;
     } catch (error) {

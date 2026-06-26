@@ -6,16 +6,11 @@ export interface IAgenda {
   id_profissional: number;
   id_unidade: number;
   id_agendamento?: number;
-  dia_semana:
-    | "Segunda-feira"
-    | "Terça-feira"
-    | "Quarta-feira"
-    | "Quinta-feira"
-    | "Sexta-feira"
-    | "Sábado"
-    | "Domingo";
+  data: string;               // Data específica da agenda (DATEONLY: "2025-03-10")
   horario_inicio: Date;
   horario_fim: Date;
+  horario_almoco_inicio?: Date | null;
+  horario_almoco_fim?: Date | null;
   duracao_consulta: number;
   vagas_disponiveis: number;
   ativo: boolean;
@@ -27,16 +22,11 @@ class Agenda extends Model<IAgenda> implements IAgenda {
   public id_profissional!: number;
   public id_agendamento!: number;
   public id_unidade!: number;
-  public dia_semana!:
-    | "Segunda-feira"
-    | "Terça-feira"
-    | "Quarta-feira"
-    | "Quinta-feira"
-    | "Sexta-feira"
-    | "Sábado"
-    | "Domingo";
+  public data!: string;
   public horario_inicio!: Date;
   public horario_fim!: Date;
+  public horario_almoco_inicio!: Date | null;
+  public horario_almoco_fim!: Date | null;
   public duracao_consulta!: number;
   public vagas_disponiveis!: number;
   public ativo!: boolean;
@@ -78,18 +68,10 @@ Agenda.init(
         key: "id_unidade",
       },
     },
-    dia_semana: {
-      type: DataTypes.ENUM(
-        "Segunda-feira",
-        "Terça-feira",
-        "Quarta-feira",
-        "Quinta-feira",
-        "Sexta-feira",
-        "Sábado",
-        "Domingo",
-      ),
+    data: {
+      type: DataTypes.DATEONLY,
       allowNull: false,
-      field: "dia_semana",
+      field: "data",
     },
     horario_inicio: {
       type: DataTypes.DATE,
@@ -100,6 +82,16 @@ Agenda.init(
       type: DataTypes.DATE,
       allowNull: false,
       field: "horario_fim",
+    },
+    horario_almoco_inicio: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "horario_almoco_inicio",
+    },
+    horario_almoco_fim: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "horario_almoco_fim",
     },
     duracao_consulta: {
       type: DataTypes.INTEGER,

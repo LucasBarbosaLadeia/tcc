@@ -5,7 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUsuario = exports.updateUsuario = exports.getUsuarioById = exports.getAllUsuarios = exports.createUsuario = void 0;
 const usuarioModel_1 = __importDefault(require("../models/usuarioModel"));
+const pacienteModel_1 = __importDefault(require("../models/pacienteModel"));
+const agendamentoModel_1 = __importDefault(require("../models/agendamentoModel"));
 const password_1 = require("../utils/password");
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const createUsuario = async (req, res) => {
     try {
         const { nome, email, cpf, senha, perfil } = req.body;
@@ -14,6 +17,10 @@ const createUsuario = async (req, res) => {
             return res
                 .status(400)
                 .json({ error: "Dados obrigatórios não informados" });
+        }
+        const emailNorm = email.trim().toLowerCase();
+        if (!EMAIL_REGEX.test(emailNorm)) {
+            return res.status(400).json({ error: "E-mail inválido" });
         }
         if (perfil && perfil !== "PACIENTE" && requester?.perfil !== "ADMIN") {
             return res.status(403).json({ error: "Sem permissão para criar usuário com este perfil" });
@@ -27,7 +34,7 @@ const createUsuario = async (req, res) => {
             : "PACIENTE";
         const novo = await usuarioModel_1.default.create({
             nome,
-            email,
+            email: emailNorm,
             cpf,
             senha: senhaHash,
             perfil: perfilFinal,
@@ -95,7 +102,14 @@ const updateUsuario = async (req, res) => {
                 .status(403)
                 .json({ error: "Paciente não pode alterar perfil" });
         }
-        const updates = { nome, email, cpf, ativo };
+        let emailNorm;
+        if (email !== undefined) {
+            emailNorm = email.trim().toLowerCase();
+            if (!EMAIL_REGEX.test(emailNorm)) {
+                return res.status(400).json({ error: "E-mail inválido" });
+            }
+        }
+        const updates = { nome, email: emailNorm, cpf, ativo };
         if (perfil) {
             updates.perfil = perfil;
         }
@@ -121,8 +135,19 @@ const deleteUsuario = async (req, res) => {
         const item = await usuarioModel_1.default.findByPk(id);
         if (!item)
             return res.status(404).json({ error: "Usuário não encontrado" });
+        const paciente = await pacienteModel_1.default.findOne({ where: { id_usuario: id } });
+        if (paciente) {
+            const agendamentoCount = await agendamentoModel_1.default.count({
+                where: { id_paciente: paciente.get("id_paciente") },
+            });
+            if (agendamentoCount > 0) {
+                await item.update({ ativo: false });
+                return res.status(200).json({ message: "Usuário inativado com sucesso." });
+            }
+            await paciente.destroy();
+        }
         await item.destroy();
-        return res.status(200).json({ message: "Usuário deletado com sucesso" });
+        return res.status(200).json({ message: "Usuário removido com sucesso." });
     }
     catch (error) {
         return res

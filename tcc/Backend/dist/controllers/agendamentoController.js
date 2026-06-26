@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAgendamento = exports.updateAgendamento = exports.getAgendamentoById = exports.getAllAgendamentos = exports.createAgendamento = void 0;
 const agendamentoModel_1 = __importDefault(require("../models/agendamentoModel"));
 const horarioModel_1 = __importDefault(require("../models/horarioModel"));
+const agendaModel_1 = __importDefault(require("../models/agendaModel"));
+const profissionalModel_1 = __importDefault(require("../models/profissionalModel"));
 const pacienteModel_1 = __importDefault(require("../models/pacienteModel"));
 const generateCodigo = () => {
     const year = new Date().getFullYear().toString();
@@ -81,10 +83,24 @@ const getAllAgendamentos = async (_req, res) => {
         const horarios = horarioIds.length
             ? await horarioModel_1.default.findAll({ where: { id_horario: horarioIds } })
             : [];
-        const horarioMap = new Map(horarios.map((h) => [
-            h.get("id_horario"),
-            { data_hora_inicio: h.get("data_hora_inicio"), data_hora_fim: h.get("data_hora_fim") },
+        const agendaIds = Array.from(new Set(horarios.map((h) => h.get("id_agenda")).filter((id) => typeof id === "number" && !isNaN(id))));
+        const agendas = agendaIds.length ? await agendaModel_1.default.findAll({ where: { id_agenda: agendaIds } }) : [];
+        const agendaMap = new Map(agendas.map((a) => [a.get("id_agenda"), a.get("id_profissional")]));
+        const profissionalIds = Array.from(new Set(agendas.map((a) => a.get("id_profissional")).filter(Boolean)));
+        const profissionais = profissionalIds.length ? await profissionalModel_1.default.findAll({ where: { id_profissional: profissionalIds } }) : [];
+        const profissionalMap = new Map(profissionais.map((p) => [
+            p.get("id_profissional"),
+            { nome_completo: p.get("nome_completo"), tipo_registro: p.get("tipo_registro") },
         ]));
+        const horarioMap = new Map(horarios.map((h) => {
+            const idAgenda = h.get("id_agenda");
+            const idProf = agendaMap.get(idAgenda);
+            const profissional = idProf ? (profissionalMap.get(idProf) ?? null) : null;
+            return [
+                h.get("id_horario"),
+                { data_hora_inicio: h.get("data_hora_inicio"), data_hora_fim: h.get("data_hora_fim"), profissional },
+            ];
+        }));
         const result = items.map((a) => ({
             ...(a.toJSON?.() ?? {}),
             horario: horarioMap.get(a.id_horario) ?? null,

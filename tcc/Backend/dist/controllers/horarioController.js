@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteHorario = exports.updateHorario = exports.getHorarioById = exports.getAllHorarios = exports.createHorario = void 0;
 const horarioModel_1 = __importDefault(require("../models/horarioModel"));
+const agendaModel_1 = __importDefault(require("../models/agendaModel"));
+const profissionalModel_1 = __importDefault(require("../models/profissionalModel"));
 const sequelize_1 = require("sequelize");
 const createHorario = async (req, res) => {
     try {
@@ -27,14 +29,29 @@ const createHorario = async (req, res) => {
 exports.createHorario = createHorario;
 const getAllHorarios = async (_req, res) => {
     try {
-        // apenas mostra os horários que estão disponíveis e no futuro (filtro tipo vw_disponibilidade)
         const items = await horarioModel_1.default.findAll({
             where: {
                 status: "Disponível",
-                data_hora_inicio: { [sequelize_1.Op.gt]: new Date() }
-            }
+                data_hora_inicio: { [sequelize_1.Op.gt]: new Date() },
+            },
         });
-        return res.status(200).json(items);
+        const agendaIds = Array.from(new Set(items.map((h) => h.get("id_agenda")).filter(Boolean)));
+        const agendas = agendaIds.length ? await agendaModel_1.default.findAll({ where: { id_agenda: agendaIds } }) : [];
+        const agendaMap = new Map(agendas.map((a) => [a.get("id_agenda"), a.get("id_profissional")]));
+        const profissionalIds = Array.from(new Set(agendas.map((a) => a.get("id_profissional")).filter(Boolean)));
+        const profissionais = profissionalIds.length ? await profissionalModel_1.default.findAll({ where: { id_profissional: profissionalIds } }) : [];
+        const profissionalMap = new Map(profissionais.map((p) => [
+            p.get("id_profissional"),
+            { nome_completo: p.get("nome_completo"), tipo_registro: p.get("tipo_registro") },
+        ]));
+        const result = items.map((h) => {
+            const idProf = agendaMap.get(h.get("id_agenda"));
+            return {
+                ...(h.toJSON?.() ?? {}),
+                profissional: idProf ? (profissionalMap.get(idProf) ?? null) : null,
+            };
+        });
+        return res.status(200).json(result);
     }
     catch (error) {
         return res.status(500).json({ error: "Erro ao buscar horários", details: error });

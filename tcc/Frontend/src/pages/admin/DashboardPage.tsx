@@ -6,6 +6,7 @@ import { useUsuarios } from '@/hooks/useUsuarios';
 import { useProfissionais } from '@/hooks/useProfissionais';
 import { useUnidades } from '@/hooks/useUnidades';
 import { useEspecialidades } from '@/hooks/useEspecialidades';
+import { ConsultasChart } from '@/components/charts/ConsultasChart';
 
 const modules = [
   { to: '/admin/usuarios',       label: 'Usuários',       desc: 'Gerenciar contas',             icon: Users,       color: 'bg-blue-50 text-blue-600'   },
@@ -62,6 +63,9 @@ export function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Charts */}
+      <ConsultasChart />
     </div>
   );
 }

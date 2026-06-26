@@ -8,7 +8,7 @@ const login = async (req, res) => {
         if (!senha || (!cpf && !email)) {
             return res.status(400).json({ error: "Credenciais invalidas" });
         }
-        const identificador = cpf || email;
+        const identificador = cpf ? cpf.trim() : (email || '').trim().toLowerCase();
         const result = await (0, authService_1.authenticateLogin)(identificador, senha);
         if (!result) {
             return res.status(401).json({ error: "Credenciais invalidas" });

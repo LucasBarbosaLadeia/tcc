@@ -4,9 +4,11 @@ import type { Agenda } from '@/types/agenda';
 export interface CreateAgendaInput {
   id_profissional: number;
   id_unidade: number;
-  dia_semana: string;
+  data: string;
   horario_inicio: string;
   horario_fim: string;
+  horario_almoco_inicio?: string;
+  horario_almoco_fim?: string;
   duracao_consulta: number;
 }
 

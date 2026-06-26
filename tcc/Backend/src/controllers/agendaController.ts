@@ -2,26 +2,20 @@ import { Request, Response } from "express";
 import Agenda from "../models/agendaModel";
 import Horario from "../models/horarioModel";
 
-// Retorna a data da próxima ocorrência do dia da semana (nunca hoje mesmo)
-function nextOccurrence(diaSemana: string): Date {
-  const dayMap: Record<string, number> = {
-    "Domingo": 0, "Segunda-feira": 1, "Terça-feira": 2, "Quarta-feira": 3,
-    "Quinta-feira": 4, "Sexta-feira": 5, "Sábado": 6,
-  };
-  const target = dayMap[diaSemana] ?? 1;
-  const now = new Date();
-  const daysUntil = (target - now.getDay() + 7) % 7 || 7;
-  const result = new Date(now);
-  result.setDate(result.getDate() + daysUntil);
-  result.setHours(0, 0, 0, 0);
-  return result;
-}
-
 export const createAgenda = async (req: Request, res: Response) => {
   try {
-    const { id_profissional, id_unidade, dia_semana, horario_inicio, horario_fim, duracao_consulta } = req.body;
+    const {
+      id_profissional,
+      id_unidade,
+      data,
+      horario_inicio,
+      horario_fim,
+      horario_almoco_inicio,
+      horario_almoco_fim,
+      duracao_consulta,
+    } = req.body;
 
-    if (!id_profissional || !id_unidade || !dia_semana || !horario_inicio || !horario_fim || !duracao_consulta) {
+    if (!id_profissional || !id_unidade || !data || !horario_inicio || !horario_fim || !duracao_consulta) {
       return res.status(400).json({ error: "Dados obrigatórios não informados" });
     }
 
@@ -31,22 +25,54 @@ export const createAgenda = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Horário inválido" });
     }
 
-    const durMin = Number(duracao_consulta);
-    const totalMin = (agEnd.getTime() - agStart.getTime()) / 60000;
-    const vagas_calculadas = totalMin > 0 && durMin > 0 ? Math.floor(totalMin / durMin) : 0;
+    // Parse data específica (DATEONLY string: "2025-03-10")
+    const parts = String(data).split("-").map(Number);
+    if (parts.length !== 3 || parts.some(isNaN)) {
+      return res.status(400).json({ error: "Data inválida. Formato esperado: AAAA-MM-DD" });
+    }
+    const [year, month, day] = parts;
+
+    // Rejeita datas no passado (compara apenas a data, sem hora)
+    const today = new Date();
+    const agendaDate = new Date(year, month - 1, day);
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (agendaDate < todayDate) {
+      return res.status(400).json({ error: "Não é possível criar agenda para uma data passada" });
+    }
+
+    // Calcula duração do almoço se informada
+    let almocoMin = 0;
+    let almocoInicioMs: number | null = null;
+    let almocoFimMs: number | null = null;
+    if (horario_almoco_inicio && horario_almoco_fim) {
+      const almocoStart = new Date(horario_almoco_inicio);
+      const almocoEnd   = new Date(horario_almoco_fim);
+      if (!isNaN(almocoStart.getTime()) && !isNaN(almocoEnd.getTime())) {
+        almocoMin = (almocoEnd.getTime() - almocoStart.getTime()) / 60000;
+        almocoInicioMs = Date.UTC(year, month - 1, day, almocoStart.getUTCHours(), almocoStart.getUTCMinutes());
+        almocoFimMs    = Date.UTC(year, month - 1, day, almocoEnd.getUTCHours(),   almocoEnd.getUTCMinutes());
+      }
+    }
+
+    const durMin    = Number(duracao_consulta);
+    const totalMin  = (agEnd.getTime() - agStart.getTime()) / 60000;
+    const vagas_calculadas = totalMin > 0 && durMin > 0
+      ? Math.floor((totalMin - almocoMin) / durMin)
+      : 0;
 
     const novo = await Agenda.create({
       id_profissional,
       id_unidade,
-      dia_semana,
+      data,
       horario_inicio: agStart,
       horario_fim:    agEnd,
+      horario_almoco_inicio: almocoInicioMs !== null ? new Date(almocoInicioMs) : null,
+      horario_almoco_fim:    almocoFimMs    !== null ? new Date(almocoFimMs)    : null,
       duracao_consulta: durMin,
       vagas_disponiveis: vagas_calculadas,
       ativo: true,
     });
 
-    // Gera horários automaticamente para a próxima ocorrência do dia da semana
     const horariosData: Array<{
       id_agenda:        number;
       data_hora_inicio: Date;
@@ -55,15 +81,22 @@ export const createAgenda = async (req: Request, res: Response) => {
     }> = [];
 
     if (vagas_calculadas > 0) {
-      const target  = nextOccurrence(dia_semana);
-      const y  = target.getFullYear();
-      const mo = target.getMonth();
-      const d  = target.getDate();
       const durMs  = durMin * 60000;
-      let cursorMs = Date.UTC(y, mo, d, agStart.getUTCHours(), agStart.getUTCMinutes());
-      const endMs  = Date.UTC(y, mo, d, agEnd.getUTCHours(), agEnd.getUTCMinutes());
+      let cursorMs = Date.UTC(year, month - 1, day, agStart.getUTCHours(), agStart.getUTCMinutes());
+      const endMs  = Date.UTC(year, month - 1, day, agEnd.getUTCHours(),   agEnd.getUTCMinutes());
 
       while (cursorMs + durMs <= endMs) {
+        // Pula horários que se sobrepõem ao intervalo de almoço
+        if (
+          almocoInicioMs !== null &&
+          almocoFimMs    !== null &&
+          cursorMs < almocoFimMs &&
+          cursorMs + durMs > almocoInicioMs
+        ) {
+          cursorMs = almocoFimMs;
+          continue;
+        }
+
         horariosData.push({
           id_agenda:        novo.id_agenda,
           data_hora_inicio: new Date(cursorMs),
@@ -112,30 +145,51 @@ export const getAgendaById = async (req: Request, res: Response) => {
 export const updateAgenda = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
-    const { id_profissional, id_unidade, dia_semana, horario_inicio, horario_fim, duracao_consulta, ativo } = req.body;
+    const {
+      id_profissional,
+      id_unidade,
+      data,
+      horario_inicio,
+      horario_fim,
+      horario_almoco_inicio,
+      horario_almoco_fim,
+      duracao_consulta,
+      ativo,
+    } = req.body;
     if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
 
     const item = await Agenda.findByPk(id);
     if (!item) return res.status(404).json({ error: "Agenda não encontrada" });
 
-    // Recalcula vagas somente quando os três valores que definem a grade estão presentes
     let vagas_calc: number | undefined;
     if (horario_inicio && horario_fim && duracao_consulta) {
       const inicio = new Date(horario_inicio);
       const fim    = new Date(horario_fim);
       const dur    = Number(duracao_consulta);
       const totalMin = (fim.getTime() - inicio.getTime()) / 60000;
-      vagas_calc = totalMin > 0 && dur > 0 ? Math.floor(totalMin / dur) : undefined;
+
+      let almocoMin = 0;
+      if (horario_almoco_inicio && horario_almoco_fim) {
+        const almocoStart = new Date(horario_almoco_inicio);
+        const almocoEnd   = new Date(horario_almoco_fim);
+        if (!isNaN(almocoStart.getTime()) && !isNaN(almocoEnd.getTime())) {
+          almocoMin = (almocoEnd.getTime() - almocoStart.getTime()) / 60000;
+        }
+      }
+
+      vagas_calc = totalMin > 0 && dur > 0 ? Math.floor((totalMin - almocoMin) / dur) : undefined;
     }
 
     await item.update({
       id_profissional,
       id_unidade,
-      dia_semana,
-      horario_inicio:   horario_inicio   ? new Date(horario_inicio)   : undefined,
-      horario_fim:      horario_fim      ? new Date(horario_fim)      : undefined,
-      duracao_consulta: duracao_consulta ? Number(duracao_consulta)   : undefined,
-      vagas_disponiveis: vagas_calc,
+      data,
+      horario_inicio:         horario_inicio         ? new Date(horario_inicio)         : undefined,
+      horario_fim:            horario_fim            ? new Date(horario_fim)            : undefined,
+      horario_almoco_inicio:  horario_almoco_inicio  ? new Date(horario_almoco_inicio)  : null,
+      horario_almoco_fim:     horario_almoco_fim     ? new Date(horario_almoco_fim)     : null,
+      duracao_consulta:       duracao_consulta       ? Number(duracao_consulta)         : undefined,
+      vagas_disponiveis:      vagas_calc,
       ativo,
     });
     return res.status(200).json(item);

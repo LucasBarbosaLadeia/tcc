@@ -25,7 +25,7 @@ describe("Horario Controller (integração)", () => {
     const esp = await Especialidade.create({ nome_especialidade: "Geral" });
     const uni = await Unidade.create({ nome: "Unidade", tipo: "UBS", telefone: "0000", logradouro: "R", numero: "1", bairro: "B", ativo: true });
     const prof = await Profissional.create({ cpf: "123", registro_profissional: "R-1", tipo_registro: "CRM", nome_completo: "Dr", id_especialidade: esp.id_especialidade, id_unidade: uni.id_unidade, telefone: "000", ativo: true });
-    const ag = await Agenda.create({ id_profissional: prof.id_profissional, id_unidade: uni.id_unidade, dia_semana: "Segunda-feira", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 10, ativo: true });
+    const ag = await Agenda.create({ id_profissional: prof.id_profissional, id_unidade: uni.id_unidade, data: "2027-01-10", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 10, ativo: true });
     agendaId = ag.id_agenda;
   });
 

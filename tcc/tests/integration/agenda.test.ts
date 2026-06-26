@@ -39,7 +39,7 @@ describe("Agenda Controller (integração)", () => {
     const bad = await request(app).post("/api/agendas").set(authHeaders("ADMIN")).send({});
     expect(bad.status).toBe(400);
 
-    const ok = await request(app).post("/api/agendas").set(authHeaders("ADMIN")).send({ id_profissional: profissionalId, id_unidade: unidadeId, dia_semana: "Segunda-feira", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30 });
+    const ok = await request(app).post("/api/agendas").set(authHeaders("ADMIN")).send({ id_profissional: profissionalId, id_unidade: unidadeId, data: "2027-01-10", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30 });
     expect(ok.status).toBe(201);
 
     const found = await Agenda.findByPk(ok.body.agenda.id_agenda ?? ok.body.agendaId ?? ok.body.id_agenda);
@@ -47,7 +47,7 @@ describe("Agenda Controller (integração)", () => {
   });
 
   test("GET e PUT básicos", async () => {
-    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, dia_semana: "Segunda-feira", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2 });
+    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, data: "2027-01-10", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2, ativo: true });
 
     const r1 = await request(app).get("/api/agendas").set(authHeaders("ADMIN"));
     expect(r1.status).toBe(200);
@@ -57,7 +57,7 @@ describe("Agenda Controller (integração)", () => {
   });
 
   test("DELETE inativa agenda com horários vinculados", async () => {
-    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, dia_semana: "Segunda-feira", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2 });
+    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, data: "2027-01-10", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2, ativo: true });
     await Horario.create({ id_agenda: agenda.id_agenda, data_hora_inicio: new Date(Date.now() + 3600 * 1000), data_hora_fim: new Date(Date.now() + 5400 * 1000), status: "Disponível" });
 
     const r = await request(app).delete(`/api/agendas/${agenda.id_agenda}`).set(authHeaders("ADMIN"));
@@ -66,7 +66,7 @@ describe("Agenda Controller (integração)", () => {
   });
 
   test("DELETE remove agenda sem horários", async () => {
-    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, dia_semana: "Segunda-feira", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2 });
+    const agenda = await Agenda.create({ id_profissional: profissionalId, id_unidade: unidadeId, data: "2027-01-10", horario_inicio: new Date(), horario_fim: new Date(Date.now() + 3600 * 1000), duracao_consulta: 30, vagas_disponiveis: 2, ativo: true });
 
     const r = await request(app).delete(`/api/agendas/${agenda.id_agenda}`).set(authHeaders("ADMIN"));
     expect(r.status).toBe(200);

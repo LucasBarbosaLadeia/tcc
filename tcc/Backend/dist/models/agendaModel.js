@@ -41,10 +41,10 @@ Agenda.init({
             key: "id_unidade",
         },
     },
-    dia_semana: {
-        type: sequelize_1.DataTypes.ENUM("Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"),
+    data: {
+        type: sequelize_1.DataTypes.DATEONLY,
         allowNull: false,
-        field: "dia_semana",
+        field: "data",
     },
     horario_inicio: {
         type: sequelize_1.DataTypes.DATE,
@@ -55,6 +55,16 @@ Agenda.init({
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
         field: "horario_fim",
+    },
+    horario_almoco_inicio: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true,
+        field: "horario_almoco_inicio",
+    },
+    horario_almoco_fim: {
+        type: sequelize_1.DataTypes.DATE,
+        allowNull: true,
+        field: "horario_almoco_fim",
     },
     duracao_consulta: {
         type: sequelize_1.DataTypes.INTEGER,
@@ -69,6 +79,7 @@ Agenda.init({
     ativo: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
         field: "ativo",
     },
     created_at: {

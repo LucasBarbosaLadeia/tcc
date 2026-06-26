@@ -4,9 +4,11 @@ export interface IAgenda {
     id_profissional: number;
     id_unidade: number;
     id_agendamento?: number;
-    dia_semana: "Segunda-feira" | "Terça-feira" | "Quarta-feira" | "Quinta-feira" | "Sexta-feira" | "Sábado" | "Domingo";
+    data: string;
     horario_inicio: Date;
     horario_fim: Date;
+    horario_almoco_inicio?: Date | null;
+    horario_almoco_fim?: Date | null;
     duracao_consulta: number;
     vagas_disponiveis: number;
     ativo: boolean;
@@ -17,9 +19,11 @@ declare class Agenda extends Model<IAgenda> implements IAgenda {
     id_profissional: number;
     id_agendamento: number;
     id_unidade: number;
-    dia_semana: "Segunda-feira" | "Terça-feira" | "Quarta-feira" | "Quinta-feira" | "Sexta-feira" | "Sábado" | "Domingo";
+    data: string;
     horario_inicio: Date;
     horario_fim: Date;
+    horario_almoco_inicio: Date | null;
+    horario_almoco_fim: Date | null;
     duracao_consulta: number;
     vagas_disponiveis: number;
     ativo: boolean;
