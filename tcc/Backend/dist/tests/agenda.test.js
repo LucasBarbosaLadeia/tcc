@@ -25,7 +25,7 @@ describe("Agenda Controller", () => {
         expect(bad.status).toBe(400);
         mockAgenda.create.mockResolvedValue({ id_agenda: 1 });
         mockHorario.bulkCreate.mockResolvedValue([]);
-        const ok = await (0, supertest_1.default)(app_1.default).post("/api/agendas").set((0, testAuth_1.authHeaders)("ADMIN")).send({ id_profissional: 1, id_unidade: 1, dia_semana: "Mon", horario_inicio: new Date(), horario_fim: new Date(), duracao_consulta: 30, vagas_disponiveis: 5 });
+        const ok = await (0, supertest_1.default)(app_1.default).post("/api/agendas").set((0, testAuth_1.authHeaders)("ADMIN")).send({ id_profissional: 1, id_unidade: 1, data: "2027-01-10", horario_inicio: "1970-01-01T08:00:00.000Z", horario_fim: "1970-01-01T16:00:00.000Z", duracao_consulta: 30, vagas_disponiveis: 5 });
         expect(ok.status === 201 || ok.status === 500).toBeTruthy();
     });
     test("GET e PUT básicos", async () => {

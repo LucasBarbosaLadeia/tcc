@@ -12,7 +12,11 @@ const mockUsuario = {
     findAll: globals_1.jest.fn(),
     findByPk: globals_1.jest.fn(),
 };
+const mockPaciente = {
+    findOne: globals_1.jest.fn(),
+};
 globals_1.jest.mock("../models/usuarioModel", () => ({ __esModule: true, default: mockUsuario }));
+globals_1.jest.mock("../models/pacienteModel", () => ({ __esModule: true, default: mockPaciente }));
 const app_1 = __importDefault(require("../app"));
 describe("Usuario Controller", () => {
     beforeEach(() => globals_1.jest.clearAllMocks());
@@ -54,6 +58,7 @@ describe("Usuario Controller", () => {
     });
     test("DELETE usuário", async () => {
         mockUsuario.findByPk.mockResolvedValue({ destroy: globals_1.jest.fn().mockResolvedValue(true) });
+        mockPaciente.findOne.mockResolvedValue(null);
         const r = await (0, supertest_1.default)(app_1.default).delete("/api/usuarios/1").set((0, testAuth_1.authHeaders)("ADMIN"));
         expect(r.status).toBe(200);
     });

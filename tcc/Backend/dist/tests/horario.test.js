@@ -24,7 +24,7 @@ describe("Horario Controller", () => {
         expect(resp.status === 201 || resp.status === 500).toBeTruthy();
     });
     test("GET available horarios", async () => {
-        mockHorario.findAll.mockResolvedValue([{ id_horario: 1 }]);
+        mockHorario.findAll.mockResolvedValue([{ id_horario: 1, get: () => null, toJSON: () => ({ id_horario: 1 }) }]);
         const r = await (0, supertest_1.default)(app_1.default).get("/api/datas").set((0, testAuth_1.authHeaders)("ADMIN"));
         expect(r.status).toBe(200);
     });
