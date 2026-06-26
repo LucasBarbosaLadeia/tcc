@@ -85,8 +85,9 @@ export function NovoAgendamentoPage() {
       });
       toast.success('Consulta agendada com sucesso!');
       navigate('/paciente/agendamentos');
-    } catch {
-      toast.error('Erro ao criar agendamento. Tente novamente.');
+    } catch (err) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(msg || 'Erro ao criar agendamento. Tente novamente.');
     }
   };
 

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import Agendamento from "../models/agendamentoModel";
 import Horario from "../models/horarioModel";
 import Agenda from "../models/agendaModel";
@@ -40,6 +41,25 @@ export const createAgendamento = async (req: Request, res: Response) => {
     if (horario.get("status") !== "Disponível") return res.status(400).json({ error: "Horário não está disponível" });
     const inicio = new Date(horario.get("data_hora_inicio"));
     if (isNaN(inicio.getTime()) || inicio <= new Date()) return res.status(400).json({ error: "Só é possível agendar horários futuros e disponíveis" });
+
+    // bloqueia agendamento duplo no mesmo dia para o mesmo paciente
+    const diaInicio = new Date(inicio);
+    diaInicio.setHours(0, 0, 0, 0);
+    const diaFim = new Date(inicio);
+    diaFim.setHours(23, 59, 59, 999);
+    const horariosNoDia = await Horario.findAll({
+      where: { data_hora_inicio: { [Op.between]: [diaInicio, diaFim] } },
+      attributes: ["id_horario"],
+    });
+    const idsNoDia = horariosNoDia.map((h) => h.get("id_horario") as number);
+    if (idsNoDia.length > 0) {
+      const jaAgendado = await Agendamento.findOne({
+        where: { id_paciente, id_horario: { [Op.in]: idsNoDia }, status: "Agendado" },
+      });
+      if (jaAgendado) {
+        return res.status(400).json({ error: "Você já possui uma consulta agendada para este dia." });
+      }
+    }
 
     // generate unique readable code
     let codigo = codigo_agendamento || generateCodigo();
